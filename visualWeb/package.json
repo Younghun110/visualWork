@@ -1,0 +1,26 @@
+{
+  "name": "visualweb-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev frontend --hostname 127.0.0.1",
+    "build": "next build frontend --webpack",
+    "start": "next start frontend --hostname 127.0.0.1",
+    "test": "node --test extension/test/*.test.js",
+    "example:generate": "node scripts/regenerate-example.cjs",
+    "example:check": "node scripts/regenerate-example.cjs --check"
+  },
+  "dependencies": {
+    "next": "16.3.8",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@tailwindcss/postcss": "4.3.3",
+    "tailwindcss": "4.3.3"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  }
+}

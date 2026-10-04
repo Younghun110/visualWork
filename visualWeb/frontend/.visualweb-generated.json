@@ -1,0 +1,19 @@
+[
+  ".env.local.example",
+  "README.md",
+  "app/api/grid/route.js",
+  "app/api/records/route.js",
+  "app/globals.css",
+  "app/layout.jsx",
+  "app/page.jsx",
+  "components/data-grid.jsx",
+  "components/free-canvas.jsx",
+  "components/workspace-shell.jsx",
+  "lib/api-config.js",
+  "lib/api-proxy.js",
+  "lib/grid-data.js",
+  "lib/workspace-data.js",
+  "next.config.mjs",
+  "postcss.config.mjs",
+  "schema.json"
+]

@@ -1,0 +1,64 @@
+{
+  "name": "visualweb",
+  "displayName": "VisualWeb",
+  "description": "Visual form designer that generates React and Next.js components.",
+  "version": "0.1.0",
+  "publisher": "visualweb-local",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./src/extension.js",
+  "activationEvents": [
+    "onCustomEditor:visualweb.designer",
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "visualweb.newForm",
+        "title": "VisualWeb: 새 프로젝트"
+      },
+      {
+        "command": "visualweb.openProject",
+        "title": "VisualWeb: 프로젝트 폴더 불러오기"
+      },
+      {
+        "command": "visualweb.openDesigner",
+        "title": "VisualWeb: 디자이너 열기"
+      }
+    ],
+    "customEditors": [
+      {
+        "viewType": "visualweb.designer",
+        "displayName": "VisualWeb Designer",
+        "selector": [
+          {
+            "filenamePattern": "*.visualweb.json"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "configuration": {
+      "title": "VisualWeb",
+      "properties": {
+        "visualweb.preview.backendUrl": {
+          "type": "string",
+          "default": "http://127.0.0.1:4000",
+          "description": "실행해보기에서 연결할 VisualBack API 서버 주소"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "check": "node --check src/extension.js && node --check src/model.js && node --check media/designer.js && node --check media/layout.js && node --check src/preview.js && node --check src/project.js"
+  },
+  "license": "MIT",
+  "extensionKind": [
+    "workspace"
+  ]
+}

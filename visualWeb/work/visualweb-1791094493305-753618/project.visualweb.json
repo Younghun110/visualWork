@@ -1,0 +1,165 @@
+{
+  "version": 2,
+  "title": "새 화면",
+  "table": "records",
+  "submitLabel": "저장",
+  "fields": [
+    {
+      "name": "field_1",
+      "label": "입력",
+      "type": "text",
+      "span": 1,
+      "required": false,
+      "unique": false
+    },
+    {
+      "name": "field_2",
+      "label": "입력",
+      "type": "text",
+      "span": 1,
+      "required": false,
+      "unique": false
+    }
+  ],
+  "components": [
+    {
+      "id": "component_8cff7c0f-861f-4eca-af91-8333c24ecf7f",
+      "type": "container",
+      "span": 2,
+      "children": [
+        {
+          "id": "component_5ba59c13-3ee5-4c96-8ff8-0bd31be9713a",
+          "type": "input",
+          "span": 1,
+          "field": "field_1"
+        },
+        {
+          "id": "component_26dc4d17-6730-41ce-96ed-bfe80f6fb853",
+          "type": "input",
+          "span": 1,
+          "field": "field_2"
+        },
+        {
+          "id": "component_3fd5634f-789a-4a02-a3f2-1c36fa5c390f",
+          "type": "button",
+          "span": 2,
+          "text": "버튼",
+          "action": "submit",
+          "buttonWidth": 67,
+          "verticalAlign": "bottom",
+          "buttonAreaHeight": 44,
+          "align": "right"
+        }
+      ],
+      "direction": "flow",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "width": 680
+      }
+    },
+    {
+      "id": "component_8745a0a4-0ddd-4029-b45d-3f4767009a99",
+      "type": "grid",
+      "span": 2,
+      "children": [
+        {
+          "id": "cell_0a37eb85-e645-4954-9a31-dab1adccdeac",
+          "type": "cell",
+          "span": 1,
+          "children": []
+        },
+        {
+          "id": "cell_1bdd1d45-7541-41f9-b3ec-8ae40dccb026",
+          "type": "cell",
+          "span": 1,
+          "children": []
+        },
+        {
+          "id": "cell_e2d9440c-6168-4d17-ade7-5ae14111ef24",
+          "type": "cell",
+          "span": 1,
+          "children": [
+            {
+              "id": "component_94f96991-d4a3-4f80-8681-79b409551d60",
+              "type": "button",
+              "span": 1,
+              "text": "수정",
+              "action": "button",
+              "buttonWidth": 60
+            }
+          ]
+        },
+        {
+          "id": "cell_585de643-685e-4ab1-81b5-4e316712bf13",
+          "type": "cell",
+          "span": 1,
+          "children": [
+            {
+              "id": "component_42d8a44c-1032-42a9-8b6d-06c26f4a9d62",
+              "type": "button",
+              "span": 1,
+              "text": "삭제",
+              "action": "button",
+              "buttonWidth": 60
+            }
+          ]
+        },
+        {
+          "id": "cell_398816a3-6e1c-413c-98a4-db6571771dc5",
+          "type": "cell",
+          "span": 1,
+          "children": []
+        },
+        {
+          "id": "cell_8fd7e331-de4e-4652-897f-d13539a3f116",
+          "type": "cell",
+          "span": 1,
+          "children": []
+        },
+        {
+          "id": "cell_445ee3f4-43d0-45b7-a290-7d325189ae76",
+          "type": "cell",
+          "span": 1,
+          "children": []
+        },
+        {
+          "id": "cell_cb43774d-b897-48d4-b9db-64893b09d410",
+          "type": "cell",
+          "span": 1,
+          "children": []
+        }
+      ],
+      "height": 300,
+      "pageSize": 10,
+      "sortable": true,
+      "headerFilter": true,
+      "pagination": true,
+      "rows": 2,
+      "columns": 4,
+      "position": {
+        "x": 0,
+        "y": 222,
+        "width": 680
+      }
+    }
+  ],
+  "apis": [
+    {
+      "id": "api_573a2a5a-f41c-4106-9abf-4a4b91f20263",
+      "name": "save",
+      "method": "POST",
+      "path": "/api/records",
+      "source": {
+        "type": "container",
+        "componentId": "component_8cff7c0f-861f-4eca-af91-8333c24ecf7f"
+      }
+    },
+    {
+      "id": "api_34b506b9-6970-446b-b3b2-a181f3eb44b8",
+      "name": "list",
+      "method": "GET",
+      "path": "/api/records"
+    }
+  ]
+}

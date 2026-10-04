@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "name": "visualWork-app",
+  "port": 4000,
+  "database": {
+    "name": "visualWork",
+    "host": "localhost",
+    "port": 3306
+  },
+  "models": [
+    {
+      "name": "members",
+      "label": "회원",
+      "fields": [
+        {
+          "name": "name",
+          "label": "이름",
+          "type": "string",
+          "required": true,
+          "unique": false
+        },
+        {
+          "name": "email",
+          "label": "이메일",
+          "type": "string",
+          "required": true,
+          "unique": true
+        }
+      ]
+    }
+  ]
+}
