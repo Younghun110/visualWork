@@ -1,4 +1,4 @@
-# VisualBack
+# backend
 
 VisualWeb 프론트엔드가 연결하는 독립 Spring Boot JSON API 서버입니다. Java 21, Spring Boot 3.5.16, JDBC와 MariaDB를 사용합니다. 관리자 UI는 이후 별도 `../admin/`에서 개발할 예정입니다.
 
