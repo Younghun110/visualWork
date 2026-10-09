@@ -1,7 +1,7 @@
 'use strict';
 const vscode=acquireVsCodeApi(), L=window.VisualWebLayout;
 const $=id=>document.getElementById(id);
-let apiDraft,apiApplying=false,eventDraft={},eventNodeId,eventApplying=false,eventApplySnapshot,saveRequested=false;
+let apiDraft,apiApplying=false,postApiGenerating=false,postApiRequestId,postApiListLoading=false,postApiListRequestId,postApiOperations=[],eventDraft={},eventNodeId,eventApplying=false,eventApplySnapshot,saveRequested=false;
 let project,activeScreen='main',model,version,selected,pending=false,dragOffset={x:0,y:0},previewBusy=false;
 function setStatus(text,error=false){$('status').textContent=text;$('status').classList.toggle('error',error);}
 function applyCustomStyle(element,node){
@@ -337,6 +337,41 @@ window.addEventListener('keydown',event=>{
 window.addEventListener('message',({data})=>{
   if(data.type==='saved'){setStatus(data.message);return;}
   if(data.type==='empty'){emptyCanvas();return;}
+  if(data.type==='postApiList'||data.type==='postApiListError'){
+    if(data.requestId!==postApiListRequestId)return;
+    postApiListLoading=false;$('load-post-apis').disabled=false;
+    if(data.type==='postApiListError'){$('api-dialog-error').textContent=data.message;return;}
+    postApiOperations=data.apis;renderPostApiSelect();
+    $('api-dialog-error').textContent=data.apis.length?'POST API '+data.apis.length+'개를 찾았습니다.':'JSON requestBody가 정의된 POST API가 없습니다.';
+    return;
+  }
+  if(data.type==='postApiFields'||data.type==='postApiFieldsError'){
+    if(data.requestId!==postApiRequestId)return;
+    postApiGenerating=false;$('generate-post-fields').disabled=false;
+    if(data.type==='postApiFieldsError'){$('api-dialog-error').textContent=data.message;return;}
+    if(!$('api-dialog').open||!model)return;
+    const fields=data.fields,api=apiDraft?.apis.find(item=>item.method==='POST'&&item.path===$('post-api-select').value);
+    if(!api||api.method!=='POST'){$('api-dialog-error').textContent='선택한 POST API가 변경되었습니다. 다시 선택하세요.';return;}
+    const applied=edit(()=>{
+      const removeInputs=nodes=>nodes.filter(node=>{if(L.isField(node))return false;if(node.children)node.children=removeInputs(node.children);return true;});
+      model.components=removeInputs(model.components||[]);
+      model.fields=fields.map(({multiline,...field})=>field);
+      model.apis=JSON.parse(JSON.stringify(apiDraft.apis));
+      const buttons=model.components.filter(node=>node.type==='button');
+      const otherComponents=model.components.filter(node=>node.type!=='button');
+      let bottom=Math.max(20,...otherComponents.map(node=>node.position?node.position.y+L.defaultHeight(node)+16:0));
+      const generated=fields.map(field=>{
+        const node={id:'component_'+crypto.randomUUID(),type:field.multiline?'textarea':'input',field:field.name,span:field.span,position:{x:0,y:bottom,width:320}};
+        if(node.type==='textarea')node.rows=5;
+        bottom+=node.type==='textarea'?150:116;
+        return node;
+      });
+      for(const button of buttons){button.position={...(button.position||{x:0,width:L.defaultWidth(button)}),y:bottom};bottom+=L.defaultHeight(button)+16;}
+      model.components=[...otherComponents,...generated,...buttons];selected=generated[0]?.id;
+    });
+    if(!applied){apiApplying=false;return;}
+    apiApplying=true;$('api-dialog-error').textContent='입력 필드를 생성했습니다. 적용 후 저장하세요.';return;
+  }
   if(data.type==='previewStatus'){previewBusy=data.busy;$('preview').disabled=pending||previewBusy;$('preview').querySelector('span').textContent=previewBusy?'미리보기 준비 중…':'미리보기 ▶';if(!previewBusy)setStatus('미리보기 준비가 끝났습니다. 오류가 있으면 VisualWeb Preview 로그를 확인하세요.');return;}
   pending=false;$('new-project').disabled=false;$('open-project').disabled=false;$('export').disabled=false;$('preview').disabled=previewBusy;
   if(data.type==='model'){if(apiApplying){const incoming=currentModel(data.model);if(JSON.stringify(incoming?.apis)===JSON.stringify(apiDraft.apis)){apiApplying=false;$('api-dialog').close();}}if(eventApplying){const incoming=currentModel(data.model);const node=L.find(incoming?.components||[],eventNodeId);if(data.editApplied||JSON.stringify(node?.events||{})===eventApplySnapshot){eventApplying=false;eventApplySnapshot=undefined;$('event-dialog').close();}}for(const el of document.querySelectorAll('button,input,select,textarea'))el.disabled=false;project=data.model;if(activeScreen!=='main'&&!project.screens?.some(screen=>screen.id===activeScreen)&&!project.popupViews?.some(view=>view.id===activeScreen))activeScreen='main';model=currentScreen();version=data.version;model.components??=L.initial(model);L.ensurePositions(model.components);if(!L.find(model.components,selected))selected=model.components[0]?.id;render();setStatus('드래그로 추가·이동하고 Ctrl/Cmd+S로 저장하세요.');}
@@ -373,7 +408,7 @@ function renderApiRows(){
       const cell=document.createElement('td'),input=document.createElement(key==='method'?'select':'input');
       input.setAttribute('aria-label',api.id+' '+key);
       if(key==='method')for(const method of ['GET','POST','PUT','PATCH','DELETE']){const option=document.createElement('option');option.value=method;option.textContent=method;input.append(option);}
-      input.value=api[key];input.oninput=()=>{api[key]=input.value;};cell.append(input);row.append(cell);
+      input.value=api[key];input.oninput=()=>{api[key]=input.value;};input.onchange=()=>{api[key]=input.value;if(key==='method'||key==='path')renderPostApiSelect();};cell.append(input);row.append(cell);
     }
     const sourceCell=document.createElement('td'),source=document.createElement('select');source.setAttribute('aria-label',api.id+' 요청 데이터 영역');
     const choices=[{value:'screen',label:'화면 전체 입력값'}];
@@ -395,6 +430,13 @@ function renderApiRows(){
       apiDraft.apis=apiDraft.apis.filter(item=>item.id!==api.id);renderApiRows();
     };cell.append(remove);row.append(cell);$('api-rows').append(row);
   }
+  renderPostApiSelect();
+}
+function renderPostApiSelect(){
+  const select=$('post-api-select'),selected=select.value;select.replaceChildren();addOption(select,'','POST API 선택');
+  if(!postApiOperations.length)addOption(select,'','먼저 OpenAPI 목록을 불러오세요');
+  for(const api of postApiOperations)addOption(select,api.path,api.name+' · '+api.path);
+  if(postApiOperations.some(api=>api.path===selected))select.value=selected;
 }
 $('api-manage').onclick=()=>{
   if(pending||!model)return;
@@ -407,9 +449,31 @@ $('api-add').onclick=()=>{
   if(apiDraft.apis.length>=100){$('api-dialog-error').textContent='화면당 API는 최대 100개입니다.';return;}
   apiDraft.apis.push({id:'api_'+crypto.randomUUID(),name:'새 API',method:'GET',path:'/api/records'});renderApiRows();
 };
+$('load-post-apis').onclick=()=>{
+  if(postApiListLoading)return;
+  const openApiUrl=$('openapi-url').value.trim();
+  if(!openApiUrl){$('api-dialog-error').textContent='OpenAPI JSON URL을 입력하세요.';return;}
+  postApiListLoading=true;$('load-post-apis').disabled=true;$('api-dialog-error').textContent='OpenAPI 문서에서 POST API를 찾고 있습니다…';
+  postApiListRequestId=crypto.randomUUID();vscode.postMessage({type:'listPostApis',requestId:postApiListRequestId,openApiUrl});
+};
+$('generate-post-fields').onclick=()=>{
+  if(pending||postApiGenerating)return;
+  const apiPath=$('post-api-select').value,operation=postApiOperations.find(item=>item.path===apiPath);
+  if(!operation){$('api-dialog-error').textContent='OpenAPI 목록을 불러온 뒤 POST API를 선택하세요.';return;}
+  let api=apiDraft.apis.find(item=>item.method==='POST'&&item.path===apiPath);
+  if(!api){
+    if(apiDraft.apis.length>=100){$('api-dialog-error').textContent='화면당 API는 최대 100개입니다.';return;}
+    api={id:'api_'+crypto.randomUUID(),name:operation.name,method:'POST',path:apiPath,source:{type:'screen'}};
+    apiDraft.apis.push(api);renderApiRows();$('post-api-select').value=apiPath;
+  }
+  const openApiUrl=$('openapi-url').value.trim();
+  if(!openApiUrl){$('api-dialog-error').textContent='OpenAPI JSON URL을 입력하세요.';return;}
+  postApiGenerating=true;$('generate-post-fields').disabled=true;$('api-dialog-error').textContent='OpenAPI 스키마를 읽고 있습니다…';
+  postApiRequestId=crypto.randomUUID();vscode.postMessage({type:'inspectPostApi',requestId:postApiRequestId,openApiUrl,apiPath});
+};
 $('api-apply').onclick=()=>{
   if(pending)return;
-  apiApplying=true;edit(()=>{model.apis=JSON.parse(JSON.stringify(apiDraft.apis));});
+  apiApplying=true;if(!edit(()=>{model.apis=JSON.parse(JSON.stringify(apiDraft.apis));}))apiApplying=false;
 };
 function emptyCanvas(){
   saveRequested=false;project=model=undefined;selected=null;$('fields').replaceChildren();$('screen-list').replaceChildren();$('popup-view-list').replaceChildren();

@@ -35,6 +35,13 @@ DB 초기화는 자동 실행하지 않습니다. 기존 테이블 변경은 별
 - `GET /api/records/{id}`: 기본키로 회원을 조회합니다.
 - `PUT /api/records/{id}`: `name`과 `email`을 수정합니다. 입력 형식은 등록과 같습니다.
 - `DELETE /api/records/{id}`: 기본키에 해당하는 회원을 삭제합니다.
+- `GET /api/posts`: 최근 게시글 100개를 조회합니다. 행에는 `id`, `title`, `content`, `author`, `created_at`, `updated_at`이 포함됩니다.
+- `GET /api/posts/{id}`: 기본키로 게시글을 조회합니다.
+- `POST /api/posts`: `{"title":"제목","content":"내용","author":"작성자"}` 입력으로 게시글을 등록합니다. 성공 시 201과 생성된 `id`를 반환합니다.
+- `PUT /api/posts/{id}`: `title`, `content`, `author`를 수정합니다. 등록과 같은 입력 형식입니다.
+- `DELETE /api/posts/{id}`: 기본키에 해당하는 게시글을 삭제합니다.
+- `GET /api/posts/grid`: 게시글 Grid 데이터를 `title`, `content`, `author`, `created_at`, `updated_at` 컬럼과 한국어 제목으로 반환합니다. `GET /api/grid`는 회원 Grid를 유지합니다.
+- 게시글의 제목은 필수 255자 이하, 내용은 필수, 작성자는 필수 100자 이하입니다. 입력 오류는 400, 존재하지 않는 기본키는 404입니다.
 - 필수값·이메일 형식·255자 길이 검증 실패는 400, 존재하지 않는 기본키는 404, 중복 키는 409, DB 오류는 500입니다. 오류 본문은 `{"success":false,"message":"설명","data":null}`입니다.
 
 ## visualWork 연결

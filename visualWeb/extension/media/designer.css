@@ -45,3 +45,5 @@ aside textarea{display:block;width:100%;margin-top:7px;padding:8px;color:var(--v
 .event-action-config{min-width:0}
 #event-add-trigger{margin-top:4px}
 @media(max-width:600px){.event-action{grid-template-columns:1fr auto}.event-action-config{grid-column:1/-1;grid-row:2}.event-group-head{grid-template-columns:1fr auto}}
+
+.api-field-generator{margin:24px 0;padding:16px;border:1px solid #7775;border-radius:6px}.api-field-generator h3{margin:0 0 12px;font-size:14px}.api-field-generator button{margin-bottom:6px}

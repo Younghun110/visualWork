@@ -59,7 +59,7 @@
     function walk(items, depth, parentType) {
       if (!Array.isArray(items) || depth > 8) throw Error('레이아웃은 최대 8단계로 구성하세요.');
       for (const node of items) {
-        if (++count > 100 || !node || typeof node.id !== 'string' || !/^[a-zA-Z][\w-]{0,79}$/.test(node.id) || ids.has(node.id)) throw Error('컴포넌트 ID는 고유해야 하며 최대 100개까지 추가할 수 있습니다.');
+        if (++count > 600 || !node || typeof node.id !== 'string' || !/^[a-zA-Z][\w-]{0,79}$/.test(node.id) || ids.has(node.id)) throw Error('컴포넌트 ID는 고유해야 하며 화면당 최대 600개까지 추가할 수 있습니다.');
         ids.add(node.id);
         if(node.className!==undefined&&(typeof node.className!=='string'||node.className.length>1000))throw Error('CSS class는 1000자 이내로 입력하세요.');
         if(node.style!==undefined){
@@ -132,7 +132,7 @@
           if(node.rowHeight!==undefined&&(!Number.isInteger(node.rowHeight)||node.rowHeight<28||node.rowHeight>300))throw Error('Grid 행 높이는 28~300px입니다.');
           if(node.columnWidths!==undefined&&(!Array.isArray(node.columnWidths)||node.columnWidths.length!==node.columns||node.columnWidths.some(width=>!Number.isInteger(width)||width<60||width>1200)))throw Error('Grid 컬럼 너비는 60~1200px로 지정하세요.');
           if(node.pageSize!==undefined&&(!Number.isInteger(node.pageSize)||node.pageSize<1||node.pageSize>100))throw Error('페이지당 행은 1~100입니다.');
-          if (![1,2,3,4].includes(node.columns) || ![1,2,3,4,5,6].includes(node.rows)) throw Error('Grid는 1~6행, 1~4열로 지정하세요.');
+          if (!Number.isInteger(node.columns)||node.columns<1||node.columns>50||!Number.isInteger(node.rows)||node.rows<1||node.rows>10) throw Error('Grid는 1~10행, 1~50열로 지정하세요.');
           if (!Array.isArray(node.children) || node.children.length !== node.rows * node.columns || node.children.some(cell=>cell.type !== 'cell')) throw Error('Grid 셀 구성을 확인하세요.');
         }
         if (['grid','container','cell'].includes(node.type)) walk(node.children,depth+1,node.type);
