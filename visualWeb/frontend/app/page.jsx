@@ -127,8 +127,9 @@ function Screen({schema,navigate,contextRow,active=false,registerLifecycle,isPop
       for(let index=displayColumns.length;index<node.columns;index++){
         let field=`__designer_column_${index+1}`;
         while(displayColumns.some(column=>column.field===field))field=`_${field}`;
-        displayColumns.push({field,title:schema.fields?.[index]?.label||`Column ${index+1}`,width:node.columnWidths?.[index]||180,sorter:'string',hozAlign:'left',headerSort:false});
+        displayColumns.push({field,title:'',width:node.columnWidths?.[index]||180,sorter:'string',hozAlign:'left',headerSort:false});
       }
+      displayColumns.forEach((column,index)=>{if(node.headerTitles?.[index]?.trim())column.title=node.headerTitles[index].trim();});
       return <div key={node.id} className={classNames(width,'min-w-0 w-full',node.className)} style={node.style}>
       <DataGrid definition={node} payload={{...payload,columns:displayColumns}} onSelectionChange={row=>setSelectedRows(previous=>({...previous,[node.id]:row}))} onPageChange={page=>loadGrid(node,page).catch(e=>setMessage(e.message))} renderCell={(row,column,c,r)=>{
         const cell=node.children[(r%node.rows)*node.columns+c];

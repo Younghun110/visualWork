@@ -45,7 +45,7 @@
           "span": 1,
           "text": "저장",
           "action": "submit",
-          "buttonWidth": 67,
+          "buttonWidth": 100,
           "verticalAlign": "bottom",
           "buttonAreaHeight": 44,
           "align": "center",
@@ -71,7 +71,7 @@
         "y": 0,
         "width": 880
       },
-      "height": 200
+      "height": 140
     },
     {
       "id": "component_8745a0a4-0ddd-4029-b45d-3f4767009a99",
@@ -141,7 +141,7 @@
           ]
         }
       ],
-      "height": 500,
+      "height": 700,
       "pageSize": 10,
       "sortable": true,
       "headerFilter": true,
@@ -149,8 +149,8 @@
       "rows": 1,
       "columns": 4,
       "position": {
-        "x": 1,
-        "y": 210,
+        "x": 0,
+        "y": 153,
         "width": 880
       },
       "apiId": "api_34b506b9-6970-446b-b3b2-a181f3eb44b8",
@@ -159,6 +159,12 @@
         180,
         99,
         100
+      ],
+      "headerTitles": [
+        "",
+        "",
+        "",
+        ""
       ]
     }
   ],

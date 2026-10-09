@@ -152,6 +152,7 @@
     }
     node.rows=rows;node.columns=columns;node.children=cells;
     if(Array.isArray(node.columnWidths))node.columnWidths=node.columnWidths.slice(0,columns).concat(Array(Math.max(0,columns-node.columnWidths.length)).fill(180));
+    if(Array.isArray(node.headerTitles))node.headerTitles=node.headerTitles.slice(0,columns).concat(Array(Math.max(0,columns-node.headerTitles.length)).fill(''));
   }
   const api = {initial,find,location,destination,move,validate,resizeGrid,ensurePositions,place,defaultWidth,defaultHeight,isField};
   if (typeof module !== 'undefined') module.exports = api;
