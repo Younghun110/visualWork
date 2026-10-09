@@ -5,7 +5,7 @@ export async function forward(request,kind,method){
   if(method==='POST'&&!['http://'+request.headers.get('host'),'https://'+request.headers.get('host')].includes(request.headers.get('origin')))return failure('허용되지 않은 요청입니다.',403);
   const query=new URL(request.url).searchParams;
   let connection;
-  try{connection=resolveConnection(project,query.get('screen')||'main',query.get('component')||undefined,kind);}catch(error){return failure(error.message,400);}
+  try{connection=resolveConnection(project,query.get('screen')||'main',query.get('component')||undefined,kind,query.get('apiId')||undefined);}catch(error){return failure(error.message,400);}
   let body;
   if(method==='POST'){try{body=await request.json();}catch{return failure('JSON 형식이 올바르지 않습니다.',400);}}
   if(method==='GET'&&query.has('input')){try{body=JSON.parse(query.get('input'));}catch{return failure('JSON 형식이 올바르지 않습니다.',400);}}
@@ -17,9 +17,11 @@ export async function forward(request,kind,method){
     const url=new URL(apiPath,process.env.VISUALBACK_URL||'http://127.0.0.1:4000');
     if(kind==='grid')for(const key of ['page','size'])if(query.has(key))url.searchParams.set(key,query.get(key));
     if(methodToSend==='GET'&&body)for(const [key,value]of Object.entries(body))url.searchParams.set(key,typeof value==='object'?JSON.stringify(value):String(value));
+    console.log(`[VisualWeb API] ${methodToSend} ${url.pathname} request\n${JSON.stringify(body??null,null,2)}`);
     const response=await fetch(url,{method:methodToSend,cache:'no-store',signal:AbortSignal.timeout(10000),...(methodToSend!=='GET'&&body!==undefined?{headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{})});
     const payload=await response.json();
+    console.log(`[VisualWeb API] ${methodToSend} ${url.pathname} response (${response.status})\n${JSON.stringify(payload,null,2)}`);
     if(typeof payload.success!=='boolean'||typeof payload.message!=='string'||!Object.hasOwn(payload,'data'))return failure('API 응답은 success, message, data 구조여야 합니다.',502);
     return Response.json(payload,{status:response.status});
-  }catch{return failure('VisualBack API에 연결할 수 없습니다.',502);}
+  }catch(error){console.error(`[VisualWeb API] ${method} ${connection.path} failed: ${error.message}`);return failure('VisualBack API에 연결할 수 없습니다.',502);}
 }

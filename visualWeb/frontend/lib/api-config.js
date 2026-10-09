@@ -1,12 +1,13 @@
 export function findComponent(nodes,id){
   for(const node of nodes||[]){if(node.id===id)return node;const found=node.children&&findComponent(node.children,id);if(found)return found;}
 }
-export function resolveConnection(project,screenId='main',componentId,kind='grid'){
-  const screen=screenId==='main'?project:project.screens?.find(screen=>screen.id===screenId);
+export function resolveConnection(project,screenId='main',componentId,kind='grid',apiId){
+  const screen=screenId==='main'?project:project.screens?.find(screen=>screen.id===screenId)||project.popupViews?.find(view=>view.id===screenId);
   if(!screen)throw Error('화면을 찾을 수 없습니다.');
   const component=componentId?findComponent(screen.components,componentId):undefined;
   if(componentId&&(!component||(kind==='grid'?component.type!=='grid':component.type!=='button')))throw Error('API에 연결할 컴포넌트를 확인하세요.');
-  const api=component?.apiId?screen.apis?.find(api=>api.id===component.apiId):undefined;
+  const api=apiId?screen.apis?.find(api=>api.id===apiId):component?.apiId?screen.apis?.find(api=>api.id===component.apiId):undefined;
+  if(apiId&&!api)throw Error('등록된 API를 찾을 수 없습니다.');
   if(component?.apiId&&(!api||(kind==='grid'&&api.method!=='GET')))throw Error('등록된 API 연결을 확인하세요.');
   return {screen,api,method:api?.method||(kind==='grid'?'GET':'POST'),path:api?.path||component?.apiPath||(kind==='grid'?screen.api?.gridPath||'/api/grid':screen.api?.submitPath||'/api/records')};
 }
@@ -26,7 +27,7 @@ export function requestFields(screen,source){
   return inputs.map(node=>({...screen.fields.find(field=>field.name===node.field),componentId:node.id}));
 }
 export function requestPayload(screen,api,values,selectedRows={},row){
-  if(row)return {...row};
+  if(row)return {...row,...values};
   if(api?.source?.type==='grid'){
     const selected=selectedRows[api.source.componentId];if(!selected)throw Error('처리할 행을 선택하세요.');return {...selected};
   }

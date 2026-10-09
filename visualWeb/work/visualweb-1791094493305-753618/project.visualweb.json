@@ -1,23 +1,23 @@
 {
   "version": 2,
-  "title": "새 화면",
+  "title": "샘플",
   "table": "records",
   "submitLabel": "저장",
   "fields": [
     {
-      "name": "field_1",
-      "label": "입력",
+      "name": "name",
+      "label": "성명",
       "type": "text",
       "span": 1,
-      "required": false,
+      "required": true,
       "unique": false
     },
     {
-      "name": "field_2",
-      "label": "입력",
-      "type": "text",
+      "name": "email",
+      "label": "email",
+      "type": "email",
       "span": 1,
-      "required": false,
+      "required": true,
       "unique": false
     }
   ],
@@ -31,32 +31,47 @@
           "id": "component_5ba59c13-3ee5-4c96-8ff8-0bd31be9713a",
           "type": "input",
           "span": 1,
-          "field": "field_1"
+          "field": "name"
         },
         {
           "id": "component_26dc4d17-6730-41ce-96ed-bfe80f6fb853",
           "type": "input",
           "span": 1,
-          "field": "field_2"
+          "field": "email"
         },
         {
           "id": "component_3fd5634f-789a-4a02-a3f2-1c36fa5c390f",
           "type": "button",
-          "span": 2,
-          "text": "버튼",
+          "span": 1,
+          "text": "저장",
           "action": "submit",
           "buttonWidth": 67,
           "verticalAlign": "bottom",
           "buttonAreaHeight": 44,
-          "align": "right"
+          "align": "center",
+          "apiId": "api_573a2a5a-f41c-4106-9abf-4a4b91f20263",
+          "events": {
+            "onClick": [
+              {
+                "type": "callApi",
+                "apiId": "api_573a2a5a-f41c-4106-9abf-4a4b91f20263"
+              },
+              {
+                "type": "reloadGrid",
+                "componentId": "component_8745a0a4-0ddd-4029-b45d-3f4767009a99"
+              }
+            ]
+          },
+          "offsetY": 28
         }
       ],
       "direction": "flow",
       "position": {
         "x": 0,
         "y": 0,
-        "width": 680
-      }
+        "width": 880
+      },
+      "height": 200
     },
     {
       "id": "component_8745a0a4-0ddd-4029-b45d-3f4767009a99",
@@ -86,7 +101,15 @@
               "span": 1,
               "text": "수정",
               "action": "button",
-              "buttonWidth": 60
+              "buttonWidth": 60,
+              "events": {
+                "onClick": [
+                  {
+                    "type": "popupView",
+                    "viewId": "popup_56b2dea5-6edd-4152-9f41-d00c8c5113b2"
+                  }
+                ]
+              }
             }
           ]
         },
@@ -101,47 +124,42 @@
               "span": 1,
               "text": "삭제",
               "action": "button",
-              "buttonWidth": 60
+              "buttonWidth": 60,
+              "events": {
+                "onClick": [
+                  {
+                    "type": "confirm",
+                    "message": "{name} 를 정말 삭제 하시겠습니까?"
+                  },
+                  {
+                    "type": "callApi",
+                    "apiId": "api_11317e71-7793-4d0a-bd73-20d804e8a69a"
+                  }
+                ]
+              }
             }
           ]
-        },
-        {
-          "id": "cell_398816a3-6e1c-413c-98a4-db6571771dc5",
-          "type": "cell",
-          "span": 1,
-          "children": []
-        },
-        {
-          "id": "cell_8fd7e331-de4e-4652-897f-d13539a3f116",
-          "type": "cell",
-          "span": 1,
-          "children": []
-        },
-        {
-          "id": "cell_445ee3f4-43d0-45b7-a290-7d325189ae76",
-          "type": "cell",
-          "span": 1,
-          "children": []
-        },
-        {
-          "id": "cell_cb43774d-b897-48d4-b9db-64893b09d410",
-          "type": "cell",
-          "span": 1,
-          "children": []
         }
       ],
-      "height": 300,
+      "height": 500,
       "pageSize": 10,
       "sortable": true,
       "headerFilter": true,
       "pagination": true,
-      "rows": 2,
+      "rows": 1,
       "columns": 4,
       "position": {
-        "x": 0,
-        "y": 222,
-        "width": 680
-      }
+        "x": 1,
+        "y": 210,
+        "width": 880
+      },
+      "apiId": "api_34b506b9-6970-446b-b3b2-a181f3eb44b8",
+      "columnWidths": [
+        100,
+        180,
+        99,
+        100
+      ]
     }
   ],
   "apis": [
@@ -159,7 +177,153 @@
       "id": "api_34b506b9-6970-446b-b3b2-a181f3eb44b8",
       "name": "list",
       "method": "GET",
-      "path": "/api/records"
+      "path": "/api/grid"
+    },
+    {
+      "id": "api_11317e71-7793-4d0a-bd73-20d804e8a69a",
+      "name": "삭제",
+      "method": "DELETE",
+      "path": "/api/records/{id}"
+    }
+  ],
+  "screens": [
+    {
+      "id": "screen_71ef866f-d368-4c60-84d3-992a59c51dd6",
+      "version": 2,
+      "title": "샘플2",
+      "table": "screen_1",
+      "submitLabel": "저장",
+      "fields": [
+        {
+          "name": "field_1",
+          "label": "입력",
+          "type": "text",
+          "span": 1,
+          "required": false,
+          "unique": false
+        },
+        {
+          "name": "field_2",
+          "label": "입력",
+          "type": "text",
+          "span": 1,
+          "required": false,
+          "unique": false
+        }
+      ],
+      "components": [
+        {
+          "id": "component_31f1d755-e7c2-4c6e-89e2-92d45325acdf",
+          "type": "input",
+          "span": 1,
+          "field": "field_1",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 240
+          }
+        },
+        {
+          "id": "component_fecf557e-01c1-4308-9908-b7e12b45c573",
+          "type": "input",
+          "span": 1,
+          "field": "field_2",
+          "position": {
+            "x": 0,
+            "y": 116,
+            "width": 240
+          }
+        }
+      ]
+    },
+    {
+      "id": "screen_853aae81-6478-4f17-b6ba-fc09ec02fdf4",
+      "version": 2,
+      "title": "새 화면이야",
+      "table": "screen_2",
+      "submitLabel": "저장",
+      "fields": [],
+      "components": []
+    }
+  ],
+  "popupViews": [
+    {
+      "id": "popup_56b2dea5-6edd-4152-9f41-d00c8c5113b2",
+      "version": 2,
+      "title": "업데이트",
+      "table": "records",
+      "submitLabel": "닫기",
+      "fields": [
+        {
+          "name": "name",
+          "label": "이름",
+          "type": "text",
+          "span": 1,
+          "required": true,
+          "unique": false
+        },
+        {
+          "name": "email",
+          "label": "email",
+          "type": "email",
+          "span": 1,
+          "required": true,
+          "unique": false
+        }
+      ],
+      "components": [
+        {
+          "id": "component_dad609cf-b990-4737-8b36-f92e5daeacc4",
+          "type": "container",
+          "span": 2,
+          "children": [
+            {
+              "id": "component_5991f8d5-b399-40ea-a3c6-46da8f8dd53c",
+              "type": "input",
+              "span": 1,
+              "field": "name"
+            },
+            {
+              "id": "component_11be59f0-3133-4c28-ae51-951252b54b29",
+              "type": "input",
+              "span": 1,
+              "field": "email"
+            },
+            {
+              "id": "component_3144b346-5eec-4196-a7db-5172f81eb094",
+              "type": "button",
+              "span": 1,
+              "text": "수정",
+              "action": "submit",
+              "offsetY": 35,
+              "apiId": "api_76ffc712-7c97-40ca-99fc-21ee9e1d4d5d"
+            }
+          ],
+          "direction": "flow",
+          "position": {
+            "x": 5,
+            "y": 27,
+            "width": 680
+          }
+        }
+      ],
+      "apis": [
+        {
+          "id": "api_2c17b4ba-bf15-47e4-b026-292c26fce721",
+          "name": "조회",
+          "method": "GET",
+          "path": "/api/records/{id}"
+        },
+        {
+          "id": "api_76ffc712-7c97-40ca-99fc-21ee9e1d4d5d",
+          "name": "수정",
+          "method": "PUT",
+          "path": "/api/records/{id}"
+        }
+      ],
+      "pageEvents": {
+        "onLoadPage": "api_2c17b4ba-bf15-47e4-b026-292c26fce721"
+      }
     }
   ]
 }

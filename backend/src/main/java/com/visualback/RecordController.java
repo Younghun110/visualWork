@@ -29,4 +29,21 @@ public class RecordController {
     public ApiResponse<Map<String, Long>> create(@Valid @RequestBody RecordRequest request) {
         return ApiResponse.ok("등록 성공", Map.of("id", service.create(request)));
     }
+
+    @GetMapping("/api/records/{id}")
+    public ApiResponse<Map<String, Object>> get(@PathVariable long id) {
+        return ApiResponse.ok("조회 성공", service.get(id));
+    }
+
+    @PutMapping("/api/records/{id}")
+    public ApiResponse<Map<String, Object>> update(@PathVariable long id,
+            @Valid @RequestBody RecordRequest request) {
+        return ApiResponse.ok("수정 성공", service.update(id, request));
+    }
+
+    @DeleteMapping("/api/records/{id}")
+    public ApiResponse<Map<String, Long>> delete(@PathVariable long id) {
+        service.delete(id);
+        return ApiResponse.ok("삭제 성공", Map.of("id", id));
+    }
 }

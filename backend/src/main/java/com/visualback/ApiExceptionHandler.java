@@ -2,6 +2,7 @@ package com.visualback;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,10 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DuplicateKeyException.class)
     public ResponseEntity<ApiResponse<Void>> duplicate() {
         return ResponseEntity.status(409).body(ApiResponse.failure("이미 등록된 값입니다. 중복 불가 항목을 확인하세요."));
+    }
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    public ResponseEntity<ApiResponse<Void>> notFound() {
+        return ResponseEntity.status(404).body(ApiResponse.failure("요청한 데이터를 찾을 수 없습니다."));
     }
     @ExceptionHandler({DataAccessException.class, IllegalStateException.class})
     public ResponseEntity<ApiResponse<Void>> database() {

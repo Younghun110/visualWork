@@ -61,6 +61,40 @@
       for (const node of items) {
         if (++count > 100 || !node || typeof node.id !== 'string' || !/^[a-zA-Z][\w-]{0,79}$/.test(node.id) || ids.has(node.id)) throw Error('컴포넌트 ID는 고유해야 하며 최대 100개까지 추가할 수 있습니다.');
         ids.add(node.id);
+        if(node.className!==undefined&&(typeof node.className!=='string'||node.className.length>1000))throw Error('CSS class는 1000자 이내로 입력하세요.');
+        if(node.style!==undefined){
+          if(!node.style||typeof node.style!=='object'||Array.isArray(node.style)||Object.keys(node.style).length>100)throw Error('인라인 style은 최대 100개 속성의 JSON 객체여야 합니다.');
+          for(const [key,value] of Object.entries(node.style))if(!/^(--[a-zA-Z0-9_-]+|[a-zA-Z][a-zA-Z0-9]*)$/.test(key)||!['string','number'].includes(typeof value)||String(value).length>1000)throw Error('style 속성은 camelCase CSS 이름과 문자열 또는 숫자 값으로 입력하세요.');
+        }
+        if(node.events!==undefined){
+          if(node.type!=='button'||!node.events||typeof node.events!=='object'||Array.isArray(node.events))throw Error('이벤트는 Button에만 설정할 수 있습니다.');
+          const eventNames=Object.keys(node.events);
+          if(eventNames.length>2||eventNames.some(name=>!['onClick','onDblClick'].includes(name)))throw Error('지원하지 않는 버튼 이벤트입니다.');
+          for(const [eventName,actions] of Object.entries(node.events)){
+            if(!Array.isArray(actions)||!actions.length||actions.length>100)throw Error(eventName+' 이벤트에는 1~100개 액션을 추가하세요.');
+            for(const action of actions){
+              if(!action||typeof action!=='object'||Array.isArray(action))throw Error('이벤트 액션 설정을 확인하세요.');
+              if(action.type==='callApi'){
+                if(typeof action.apiId!=='string'||!/^api_[a-zA-Z0-9_-]{1,80}$/.test(action.apiId))throw Error('API 호출 액션의 API를 선택하세요.');
+              }else if(action.type==='submitForm'){
+                continue;
+              }else if(action.type==='closePopup'){
+                continue;
+              }else if(action.type==='showMessage'){
+                if(typeof action.message!=='string'||!action.message.trim()||action.message.length>500)throw Error('표시할 메시지를 1~500자로 입력하세요.');
+              }else if(action.type==='confirm'){
+                if(typeof action.message!=='string'||!action.message.trim()||action.message.length>500)throw Error('확인 메시지를 1~500자로 입력하세요.');
+              }else if(action.type==='navigate'){
+                if(typeof action.screenId!=='string'||!/^main$|^screen_[a-zA-Z0-9_-]+$/.test(action.screenId))throw Error('이동할 화면을 선택하세요.');
+              }else if(action.type==='popupView'){
+                if(typeof action.viewId!=='string'||!/^popup_[a-zA-Z0-9_-]{1,80}$/.test(action.viewId))throw Error('팝업으로 표시할 View를 선택하세요.');
+                for(const key of ['primaryKeyField','primaryKeyParam'])if(action[key]!==undefined&&(typeof action[key]!=='string'||!/^[a-zA-Z][a-zA-Z0-9_]{0,79}$/.test(action[key])))throw Error('행 기본키 필드와 팝업 파라미터 이름을 확인하세요.');
+              }else if(action.type==='reloadGrid'){
+                if(typeof action.componentId!=='string'||!/^[a-zA-Z][\w-]{0,79}$/.test(action.componentId))throw Error('다시 불러올 Grid를 선택하세요.');
+              }else throw Error('지원하지 않는 이벤트 액션입니다.');
+            }
+          }
+        }
         if(node.position!==undefined){
           if(parentType!==undefined || !node.position || !Number.isInteger(node.position.x)||!Number.isInteger(node.position.y)||!Number.isInteger(node.position.width)||node.position.x<0||node.position.y<0||node.position.x>10000||node.position.y>10000||node.position.width<80||node.position.width>2000)throw Error('캔버스 좌표 또는 너비를 확인하세요.');
         }
@@ -91,9 +125,12 @@
         if (node.type === 'button' && !['submit','button'].includes(node.action)) throw Error('버튼 동작을 확인하세요.');
         if (node.type === 'cell' && parentType !== 'grid') throw Error('셀은 Grid 안에만 배치할 수 있습니다.');
         if (node.type === 'container' && !['flow','horizontal','vertical'].includes(node.direction)) throw Error('Container 방향을 확인하세요.');
+        if (node.type === 'container' && node.height!==undefined && (!Number.isInteger(node.height)||node.height<40||node.height>1200)) throw Error('Container 높이는 40~1200px입니다.');
         if (node.type === 'grid') {
           for(const key of ['sortable','headerFilter','pagination'])if(node[key]!==undefined&&typeof node[key]!=='boolean')throw Error('Grid 옵션을 확인하세요.');
           if(node.height!==undefined&&(!Number.isInteger(node.height)||node.height<120||node.height>1200))throw Error('Grid 높이는 120~1200입니다.');
+          if(node.rowHeight!==undefined&&(!Number.isInteger(node.rowHeight)||node.rowHeight<28||node.rowHeight>300))throw Error('Grid 행 높이는 28~300px입니다.');
+          if(node.columnWidths!==undefined&&(!Array.isArray(node.columnWidths)||node.columnWidths.length!==node.columns||node.columnWidths.some(width=>!Number.isInteger(width)||width<60||width>1200)))throw Error('Grid 컬럼 너비는 60~1200px로 지정하세요.');
           if(node.pageSize!==undefined&&(!Number.isInteger(node.pageSize)||node.pageSize<1||node.pageSize>100))throw Error('페이지당 행은 1~100입니다.');
           if (![1,2,3,4].includes(node.columns) || ![1,2,3,4,5,6].includes(node.rows)) throw Error('Grid는 1~6행, 1~4열로 지정하세요.');
           if (!Array.isArray(node.children) || node.children.length !== node.rows * node.columns || node.children.some(cell=>cell.type !== 'cell')) throw Error('Grid 셀 구성을 확인하세요.');
@@ -114,6 +151,7 @@
       cells.push(r<node.rows && c<node.columns ? node.children[r*node.columns+c] : {id:makeId(),type:'cell',span:1,children:[]});
     }
     node.rows=rows;node.columns=columns;node.children=cells;
+    if(Array.isArray(node.columnWidths))node.columnWidths=node.columnWidths.slice(0,columns).concat(Array(Math.max(0,columns-node.columnWidths.length)).fill(180));
   }
   const api = {initial,find,location,destination,move,validate,resizeGrid,ensurePositions,place,defaultWidth,defaultHeight,isField};
   if (typeof module !== 'undefined') module.exports = api;

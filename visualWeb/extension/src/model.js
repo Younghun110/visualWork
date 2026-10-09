@@ -10,7 +10,7 @@ function validateApi(api) {
   if(!api||typeof api!=='object'||Array.isArray(api))throw Error('API 연결 설정을 확인하세요.');
   validateApiPath(api.submitPath);validateApiPath(api.gridPath);
 }
-function validate(m) {
+function validate(m,projectScreenIds,projectPopupViewIds) {
   if (!m || m.version !== 2 || typeof m.title !== 'string' || !m.title.trim() || m.title.length > 100) throw Error('유효한 v2 폼과 제목이 필요합니다.');
   if (typeof m.table !== 'string' || !identifier.test(m.table)) throw Error('테이블 이름은 소문자 영문으로 시작하는 영문/숫자/_ 조합입니다.');
   if (!Array.isArray(m.fields) || m.fields.length > 30) throw Error('필드는 최대 30개까지 추가할 수 있습니다.');
@@ -22,6 +22,8 @@ function validate(m) {
   }
   if (typeof m.submitLabel !== 'string' || !m.submitLabel.trim() || m.submitLabel.length > 100) throw Error('저장 버튼 이름이 필요합니다.');
   validateApi(m.api);
+  const screenIds=projectScreenIds||new Set(['main',...(Array.isArray(m.screens)?m.screens.map(screen=>screen?.id).filter(Boolean):[])]);
+  const popupViewIds=projectPopupViewIds||new Set(Array.isArray(m.popupViews)?m.popupViews.map(view=>view?.id).filter(Boolean):[]);
   const apiIds=new Map();
   if(m.apis!==undefined){
     if(!Array.isArray(m.apis)||m.apis.length>100)throw Error('화면당 API는 최대 100개입니다.');
@@ -32,9 +34,13 @@ function validate(m) {
       validateApiPath(api.path);apiIds.set(api.id,api);
     }
   }
+  if(m.pageEvents!==undefined){
+    if(!m.pageEvents||typeof m.pageEvents!=='object'||Array.isArray(m.pageEvents)||Object.keys(m.pageEvents).some(name=>!['onLoadPage','onUnloadPage'].includes(name)))throw Error('View 이벤트 설정을 확인하세요.');
+    for(const apiId of Object.values(m.pageEvents))if(typeof apiId!=='string'||!apiIds.has(apiId))throw Error('View 이벤트가 참조하는 API를 찾을 수 없습니다.');
+  }
   if (m.components !== undefined) {
     layout.validate(m.components, m.fields);
-    const walk=nodes=>{for(const node of nodes){if(node.apiId){const api=apiIds.get(node.apiId);if(!api||(node.type==='grid'?api.method!=='GET':node.type!=='button'))throw Error('컴포넌트의 API 연결 또는 메서드를 확인하세요.');}if(node.apiPath!==undefined){if(!['grid','button'].includes(node.type))throw Error('API 경로는 Grid 또는 버튼에만 지정하세요.');validateApiPath(node.apiPath);}if(node.children)walk(node.children);}};
+    const walk=nodes=>{for(const node of nodes){if(node.apiId){const api=apiIds.get(node.apiId);if(!api||(node.type==='grid'?api.method!=='GET':node.type!=='button'))throw Error('컴포넌트의 API 연결 또는 메서드를 확인하세요.');}if(node.apiPath!==undefined){if(!['grid','button'].includes(node.type))throw Error('API 경로는 Grid 또는 버튼에만 지정하세요.');validateApiPath(node.apiPath);}for(const actions of Object.values(node.events||{}))for(const action of actions){if(action.type==='callApi'&&!apiIds.has(action.apiId))throw Error('이벤트 액션이 참조하는 API를 찾을 수 없습니다.');if(action.type==='navigate'&&!screenIds.has(action.screenId))throw Error('이벤트 액션이 참조하는 화면을 찾을 수 없습니다.');if(action.type==='popupView'&&!popupViewIds.has(action.viewId)&&!(action.viewId===undefined&&screenIds.has(action.screenId)))throw Error('팝업으로 표시할 View를 찾을 수 없습니다.');if(action.type==='reloadGrid'&&layout.find(m.components||[],action.componentId)?.type!=='grid')throw Error('이벤트 액션이 참조하는 Grid를 찾을 수 없습니다.');}if(node.children)walk(node.children);}};
     walk(m.components);
   }
   if(m.screens!==undefined){
@@ -42,8 +48,15 @@ function validate(m) {
     const ids=new Set(['main']);
     for(const screen of m.screens){
       if(!screen||typeof screen.id!=='string'||!/^screen_[a-zA-Z0-9_-]+$/.test(screen.id)||ids.has(screen.id)||screen.screens!==undefined)throw Error('화면 ID 또는 구성을 확인하세요.');
-      ids.add(screen.id);validate(screen);
+      ids.add(screen.id);
     }
+    for(const screen of m.screens)validate(screen,ids,popupViewIds);
+  }
+  if(m.popupViews!==undefined){
+    if(!Array.isArray(m.popupViews)||m.popupViews.length>30)throw Error('팝업 View는 최대 30개까지 만들 수 있습니다.');
+    const ids=new Set();
+    for(const view of m.popupViews){if(!view||typeof view.id!=='string'||!/^popup_[a-zA-Z0-9_-]{1,80}$/.test(view.id)||ids.has(view.id)||screenIds.has(view.id)||view.screens!==undefined||view.popupViews!==undefined)throw Error('팝업 View ID 또는 구성을 확인하세요.');if(view.width!==undefined&&(!Number.isInteger(view.width)||view.width<240||view.width>1600))throw Error('팝업 View 너비는 240~1600px 사이로 설정하세요.');if(view.height!==undefined&&(!Number.isInteger(view.height)||view.height<180||view.height>1200))throw Error('팝업 View 높이는 180~1200px 사이로 설정하세요.');ids.add(view.id);}
+    for(const view of m.popupViews)validate(view,screenIds,ids);
   }
   return m;
 }

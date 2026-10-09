@@ -12,8 +12,12 @@ export default function DataGrid({definition,payload,renderCell,onPageChange,onS
   const pageSize=definition.pageSize||10,pages=Math.max(1,Math.ceil((remote?payload.totalCount:rows.length)/pageSize)),current=remote?payload.pageNo:Math.min(page,pages);
   function changePage(value){if(remote)onPageChange(value);else setPage(value);}
   const shown=remote||definition.pagination===false?rows:rows.slice((current-1)*pageSize,current*pageSize);
-  const dragField=useRef(null);
-  useEffect(()=>{setPage(1);setSelected(null);onSelectionChange?.(null);},[payload]);
+  const dragField=useRef(null),scrollRef=useRef(null);
+  const [viewportWidth,setViewportWidth]=useState(0);
+  useEffect(()=>{const element=scrollRef.current;if(!element)return;const measure=()=>setViewportWidth(element.clientWidth);const observer=new ResizeObserver(measure);observer.observe(element);measure();return()=>observer.disconnect();},[]);
+  const tableWidth=columns.reduce((total,column)=>{const width=Number.parseFloat(widths[column.field]||column.width);return total+Math.max(80,Number.isFinite(width)?width:180);},0);
+  const fitsViewport=viewportWidth>0&&tableWidth<=viewportWidth+1;
+  useEffect(()=>{setPage(1);setSelected(null);onSelectionChange?.(null);},[payload.data,payload.pageNo]);
   function resize(event,column){
     event.preventDefault();event.stopPropagation();
     const element=event.currentTarget,start=event.clientX,width=widths[column.field]||column.width;
@@ -27,15 +31,15 @@ export default function DataGrid({definition,payload,renderCell,onPageChange,onS
     const keys=columns.map(c=>c.field).filter(key=>key!==source);keys.splice(keys.indexOf(field),0,source);setOrder(keys);dragField.current=null;
   }
   return <section className="vw-data-grid" aria-label="Data Grid" onDragOver={e=>{if(dragField.current)e.preventDefault();}}>
-    <div className="vw-grid-scroll" style={{maxHeight:definition.height || 320}}>
-      <table><colgroup>{columns.map(column=><col key={column.field} style={{width:widths[column.field]||column.width}} />)}</colgroup>
+    <div ref={scrollRef} className="vw-grid-scroll" style={{maxHeight:definition.height || 320,overflowX:fitsViewport?'hidden':'auto'}}>
+      <table style={{width:fitsViewport?`${viewportWidth}px`:`${tableWidth}px`}}><colgroup>{columns.map(column=><col key={column.field} style={{width:widths[column.field]||column.width}} />)}</colgroup>
         <thead><tr>{columns.map(column=><th key={column.field} scope="col" style={{textAlign:column.hozAlign}} aria-sort={sort?.field===column.field?(sort.direction==='asc'?'ascending':'descending'):'none'} onDragOver={e=>{if(dragField.current){e.preventDefault();e.stopPropagation();}}} onDrop={e=>moveColumn(e,column.field)}>
           <div className="vw-grid-heading"><span draggable onDragStart={e=>{e.stopPropagation();dragField.current=column.field;e.dataTransfer.setData('application/visualweb-column',column.field);}} onDragEnd={()=>{dragField.current=null;}} aria-label={column.title+' 컬럼 이동'} className="vw-column-grip">⠿</span>
           <button type="button" disabled={definition.sortable===false||!column.headerSort} onClick={()=>{setSort({field:column.field,direction:sort?.field===column.field&&sort.direction==='asc'?'desc':'asc'});setPage(1);}}>{column.title}<span>{sort?.field===column.field?(sort.direction==='asc'?' ▲':' ▼'):' ↕'}</span></button></div>
           {definition.headerFilter!==false&&<input aria-label={column.title+' 필터'} placeholder="Filter…" value={filters[column.field]||''} onChange={e=>{setFilters({...filters,[column.field]:e.target.value});setPage(1);}} />}
           <button type="button" className="vw-column-resize" aria-label={column.title+' 너비 조절'} onPointerDown={e=>resize(e,column)} onKeyDown={e=>{if(['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();setWidths({...widths,[column.field]:Math.max(80,(widths[column.field]||column.width)+(e.key==='ArrowRight'?10:-10))});}}} />
         </th>)}</tr></thead>
-        <tbody>{shown.map((row,index)=><tr key={row.id ?? index} className={selected===row?'is-selected':''} onClick={()=>{setSelected(row);onSelectionChange?.(row);}}>{columns.map(column=><td key={column.field} style={{textAlign:column.hozAlign}}>{renderCell?renderCell(row,column,payload.columns.findIndex(c=>c.field===column.field),payload.data.indexOf(row)):textValue(row[column.field])}</td>)}</tr>)}</tbody>
+        <tbody>{shown.map((row,index)=><tr key={row.id ?? index} className={selected===row?'is-selected':''} style={{height:definition.rowHeight||44,'--vw-grid-row-height':`${definition.rowHeight||44}px`}} onClick={()=>{setSelected(row);onSelectionChange?.(row);}}>{columns.map(column=><td key={column.field} style={{textAlign:column.hozAlign}}>{renderCell?renderCell(row,column,payload.columns.findIndex(c=>c.field===column.field),payload.data.indexOf(row)):textValue(row[column.field])}</td>)}</tr>)}</tbody>
       </table>
       {!rows.length&&<p className="vw-grid-empty">표시할 데이터가 없습니다.</p>}
     </div>

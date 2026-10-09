@@ -3,6 +3,7 @@ const vscode=require('vscode');
 const fs=require('node:fs');
 const crypto=require('node:crypto');
 const {validate,createBlankForm}=require('./model');
+const layout=require('../media/layout');
 const {openProject,saveDesign}=require('./project');
 const {createPreview,bindProject}=require('./preview');
 const {generate}=require('./generator');
@@ -44,8 +45,8 @@ function activate(context){
   context.subscriptions.push(vscode.window.registerCustomEditorProvider('visualweb.designer',{
     async resolveCustomTextEditor(document,panel){
       const webview=panel.webview;
-      const send=()=>{
-        try{webview.postMessage({type:'model',model:validate(JSON.parse(document.getText())),version:document.version});}
+      const send=(editApplied=false)=>{
+        try{webview.postMessage({type:'model',model:validate(JSON.parse(document.getText())),version:document.version,editApplied});}
         catch(e){webview.postMessage({type:'error',message:e.message+' JSON 원문에서 수정하거나 새 폼을 만드세요.'});}
       };
       const preview=createPreview(vscode,context,document);context.subscriptions.push(preview);
@@ -59,12 +60,25 @@ function activate(context){
             webview.postMessage({type:'saved',message:'설계를 저장했습니다: '+file});
           }
           if(message.type==='edit'){
-            if(message.version!==document.version){send();return;}
+            if(message.version!==document.version)throw Error('문서가 변경되어 이벤트를 적용하지 못했습니다. 최신 상태를 불러왔습니다. 다시 적용해 주세요.');
             const model=validate(message.model),edit=new vscode.WorkspaceEdit();
             edit.replace(document.uri,new vscode.Range(0,0,document.lineCount,0),JSON.stringify(model,null,2)+'\n');
             applying=true;
             try{if(!await vscode.workspace.applyEdit(edit))throw Error('변경을 적용하지 못했습니다.');}finally{applying=false;}
-            send();
+            send(true);
+          }
+          if(message.type==='editEvents'){
+            const model=validate(JSON.parse(document.getText()));
+            const roots=[model,...(model.screens||[]),...(model.popupViews||[])];
+            const node=roots.map(root=>layout.find(root.components||[],message.componentId)).find(Boolean);
+            if(node?.type!=='button')throw Error('이벤트를 적용할 버튼을 찾을 수 없습니다.');
+            if(message.events&&Object.keys(message.events).length)node.events=message.events;else delete node.events;
+            validate(model);
+            const edit=new vscode.WorkspaceEdit();
+            edit.replace(document.uri,new vscode.Range(0,0,document.lineCount,0),JSON.stringify(model,null,2)+'\n');
+            applying=true;
+            try{if(!await vscode.workspace.applyEdit(edit))throw Error('이벤트 변경을 적용하지 못했습니다.');}finally{applying=false;}
+            send(true);
           }
           if(message.type==='preview'){
             webview.postMessage({type:'previewStatus',busy:true});
@@ -89,7 +103,7 @@ function activate(context){
             await vscode.window.showTextDocument(vscode.Uri.joinPath(folder,'README.md'));
             vscode.window.showInformationMessage(`생성 완료: ${folder.fsPath}`);
           }
-        }catch(e){if(message.type==='edit')send();webview.postMessage({type:'error',message:e.message});vscode.window.showErrorMessage(e.message);}
+        }catch(e){if(message.type==='edit'||message.type==='editEvents')send();webview.postMessage({type:'error',message:e.message});vscode.window.showErrorMessage(e.message);}
       });
       panel.onDidDispose(()=>{changed.dispose();received.dispose();preview.dispose();});
       setupDesigner(context,webview);

@@ -7,11 +7,37 @@ const crypto=require('node:crypto');
 const {spawn}=require('node:child_process');
 const {generate}=require('./generator');
 async function writePreview(model,directory){
-  const files=generate(model);
+  const files=Object.entries(generate(model));
   await fs.mkdir(directory,{recursive:true});
-  for(const [name,content] of Object.entries(files)){
-    const file=path.join(directory,name);await fs.mkdir(path.dirname(file),{recursive:true});await fs.writeFile(file,content);
+  await Promise.all(files.map(async([name,content])=>{
+    const file=path.join(directory,name);
+    await fs.mkdir(path.dirname(file),{recursive:true});
+    try{if(await fs.readFile(file,'utf8')===content)return;}
+    catch(error){if(error.code!=='ENOENT')throw error;}
+    await fs.writeFile(file,content);
+  }));
+}
+async function syncPreviewEnvironment(directory,generatedDirectory,backendUrl){
+  const names=['.env','.env.development','.env.local','.env.development.local'];
+  const desired=new Map();
+  if(generatedDirectory){
+    for(const name of names){
+      try{desired.set(name,await fs.readFile(path.join(generatedDirectory,'frontend',name)));}
+      catch(error){if(error.code!=='ENOENT')throw error;}
+    }
   }
+  if(!desired.size){
+    const backend=new URL(backendUrl);
+    if(!['http:','https:'].includes(backend.protocol))throw Error('VisualBack 주소는 http 또는 https URL이어야 합니다.');
+    desired.set('.env.local',Buffer.from('VISUALBACK_URL='+backend.origin+'\n'));
+  }
+  await Promise.all(names.map(async name=>{
+    const target=path.join(directory,'frontend',name),content=desired.get(name);
+    if(!content){await fs.rm(target,{force:true});return;}
+    try{if((await fs.readFile(target)).equals(content))return;}
+    catch(error){if(error.code!=='ENOENT')throw error;}
+    await fs.writeFile(target,content);
+  }));
 }
 function freePort(){return new Promise((resolve,reject)=>{
   const server=net.createServer();server.once('error',reject);
@@ -56,20 +82,7 @@ function createPreview(vscode,context,document,dependencies={}){
       directory ||= await previewDirectory(context,key);
       output.append('Preview directory: '+directory+'\n');
       const model=JSON.parse(document.getText());await writePreview(model,directory);
-      let hasConfiguration=false;
-      for(const name of ['.env','.env.development','.env.local','.env.development.local']){
-        const target=path.join(directory,'frontend',name);
-        await fs.rm(target,{force:true});
-        if(generatedDirectory){
-          try{await fs.copyFile(path.join(generatedDirectory,'frontend',name),target);hasConfiguration=true;}
-          catch(error){if(error.code!=='ENOENT')throw error;}
-        }
-      }
-      if(!hasConfiguration){
-        const backend=new URL(vscode.workspace.getConfiguration('visualweb').get('preview.backendUrl','http://127.0.0.1:4000'));
-        if(!['http:','https:'].includes(backend.protocol))throw Error('VisualBack 주소는 http 또는 https URL이어야 합니다.');
-        await fs.writeFile(path.join(directory,'frontend/.env.local'),'VISUALBACK_URL='+backend.origin+'\n');
-      }
+      await syncPreviewEnvironment(directory,generatedDirectory,vscode.workspace.getConfiguration('visualweb').get('preview.backendUrl','http://127.0.0.1:4000'));
       // Reuse saved-project dependencies, then the development workspace dependencies.
       const candidates=[generatedDirectory&&path.join(generatedDirectory,'node_modules'),path.resolve(context.extensionUri.fsPath,'../node_modules')].filter(Boolean);
       try{await fs.access(path.join(directory,'node_modules/next/package.json'));}
@@ -105,4 +118,4 @@ function createPreview(vscode,context,document,dependencies={}){
   }
   return {run,async setProject(folder){stop();generatedDirectory=folder;directory=undefined;await context.workspaceState?.update(projectKey,folder);},dispose(){if(closed)return;closed=true;stop();output.dispose();}};
 }
-module.exports={createPreview,writePreview,previewDirectory,bindProject};
+module.exports={createPreview,writePreview,syncPreviewEnvironment,previewDirectory,bindProject};

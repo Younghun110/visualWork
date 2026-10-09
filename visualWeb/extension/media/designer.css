@@ -3,6 +3,7 @@
 .layout-horizontal{flex-direction:row;flex-wrap:wrap}.layout-horizontal>.component{flex:1;min-width:120px}.layout-grid>.component[data-id^="cell_"]{border:1px solid #94a3b8;border-radius:0;background:#fff;cursor:default}.layout-grid>.component[data-id^="cell_"] .caption{font-size:10px;color:#64748b}@media(max-width:540px){.layout-horizontal{flex-direction:column}}
 .layout-flow{display:flex;flex-direction:row;flex-wrap:wrap;align-items:flex-start}.layout-flow>.component{flex:0 1 auto;max-width:100%;min-width:120px}.layout-flow>.wide{flex-basis:100%}.layout-flow>.drop-zone{flex:0 0 18px;min-height:50px;width:18px;overflow:hidden;font-size:0}.layout-flow>.component:not(.wide){width:180px}.grid-header{display:grid;grid-template-columns:subgrid;grid-column:1/-1;gap:0;background:#e2e8f0}.header-cell{padding:12px;border:1px solid #94a3b8;font-weight:700;color:#172033}
 .header-cell{display:flex;flex-direction:column;gap:6px}.preview-header-filter{display:block;padding:4px;background:white;border:1px solid #cbd5e1;border-radius:3px;color:#94a3b8;font-size:10px;font-weight:400}
+header nav button{display:inline-flex;align-items:center;gap:8px}header nav kbd{font:10px var(--vscode-font-family,system-ui);color:var(--vscode-descriptionForeground,#aaa);white-space:nowrap;border:1px solid var(--vscode-panel-border,#555);border-radius:3px;padding:2px 4px}.primary kbd{color:#e0e7ff;border-color:#a5b4fc}
 
 /* Editor-only placement guides; these styles are not generated into apps. */
 #canvas.show-grid {
@@ -18,7 +19,7 @@
 .canvas-grid-toggle { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 11px; letter-spacing: 0; cursor: pointer; }
 #fields.free-canvas{display:block;position:relative;min-width:800px;min-height:1000px}.free-component{position:absolute;margin:0;max-width:none}.free-component.wide{grid-column:auto}#canvas{min-width:856px;overflow:visible}.workspace{overflow:auto}#position-properties{display:grid;grid-template-columns:1fr 1fr;gap:8px}#position-properties label:last-child{grid-column:1/-1}
 .button-preview-row{display:flex;width:100%;justify-content:flex-start}.button-preview-row[data-align=center]{justify-content:center}.button-preview-row[data-align=right]{justify-content:flex-end}.component:not(.wide)>.button-preview-row{justify-content:flex-start}
-#screen-list{display:grid;gap:5px;margin-bottom:8px}#screen-list button{text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#screen-list button.active{background:#4f46e5;color:white}#add-screen,#delete-screen{width:100%;margin-bottom:6px;text-align:left;font-size:11px}
+#screen-list,#popup-view-list{display:grid;gap:5px;margin-bottom:8px}#screen-list button,#popup-view-list button{text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#screen-list button.active,#popup-view-list button.active{background:#4f46e5;color:white}#add-screen,#delete-screen,#add-popup-view,#delete-popup-view{width:100%;margin-bottom:6px;text-align:left;font-size:11px}
 .button-preview-row>.preview-button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:144px;padding:11px 28px;flex-shrink:0}.component:has(>.button-preview-row){padding:0;border:0;outline:2px solid transparent}.component.selected:has(>.button-preview-row){outline-color:#6366f1}
 aside textarea{display:block;width:100%;margin-top:7px;padding:8px;color:var(--vscode-input-foreground,#eee);background:var(--vscode-input-background,#303030);border:1px solid var(--vscode-input-border,#555);border-radius:4px;font:inherit;resize:vertical}.preview-radio-options{display:flex;flex-wrap:wrap;gap:10px;font-size:12px}.preview-radio-options span{white-space:nowrap}.field .mock.preview-textarea{height:auto;white-space:pre-wrap}
 
@@ -27,3 +28,20 @@ aside textarea{display:block;width:100%;margin-top:7px;padding:8px;color:var(--v
 #api-dialog{width:min(1100px,calc(100vw - 48px))}.api-table{min-width:740px}.api-table td:first-child{width:20%}.api-table .api-consumers{width:25%;font-size:12px;overflow-wrap:anywhere}.api-consumers>div{padding:5px 0}.api-consumers.unused{color:var(--vscode-descriptionForeground,#999)}
 
 .api-table{min-width:1000px}.api-table td:nth-child(4){width:22%}.api-table td:first-child{width:15%}.api-table .api-consumers{width:18%}
+
+#event-edit{width:100%;margin:8px 0;text-align:left}
+#event-dialog{width:min(760px,calc(100vw - 48px));max-height:calc(100vh - 48px);padding:0;border:1px solid var(--vscode-panel-border,#555);border-radius:10px;background:var(--vscode-editor-background,#202020);color:var(--vscode-editor-foreground,#eee);box-shadow:0 16px 60px #0008}
+#event-dialog::backdrop{background:#0008}
+.event-group{margin:0 0 18px;padding:14px;border:1px solid #7776;border-radius:8px}
+.event-group-head,.event-action{display:grid;grid-template-columns:minmax(120px,1fr) auto;align-items:center;gap:8px}
+.event-group-head label,.event-action label{margin:0}
+.event-action{grid-template-columns:minmax(175px,.7fr) minmax(0,1.3fr) auto;align-items:end;margin:9px 0;padding:10px;background:#ffffff08;border-radius:6px}
+.event-action>select{margin-top:0;height:36px;align-self:end}
+.event-action-config label{margin:0}
+.event-action-config select,.event-action-config input{height:36px;margin-top:5px}
+.event-action>button{align-self:end;min-height:36px}
+.event-action button,.event-group-head button{padding:7px 9px}
+.event-group-actions{margin-top:12px}
+.event-action-config{min-width:0}
+#event-add-trigger{margin-top:4px}
+@media(max-width:600px){.event-action{grid-template-columns:1fr auto}.event-action-config{grid-column:1/-1;grid-row:2}.event-group-head{grid-template-columns:1fr auto}}
