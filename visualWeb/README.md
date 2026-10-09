@@ -1,6 +1,6 @@
 # VisualWeb — VS Code 프론트엔드 디자이너
 
-시각적으로 폼을 설계하고 Next.js + React + Tailwind 프론트엔드를 생성합니다. DB 접근과 입력 검증 JSON API는 Spring Boot 기반의 별도 `../visualBack/` 서버에서 담당합니다. 관리자 기능은 추후 `../visualAdmin/`으로 분리합니다.
+시각적으로 폼을 설계하고 Next.js + React 프론트엔드 프로젝트를 생성합니다. DB 접근과 JSON API는 Spring Boot 기반의 별도 `../backend/` 서버에서 담당합니다. 관리자 기능은 추후 `../admin/`에서 개발할 예정입니다. 현재 디자이너는 VisualWeb 설계 JSON을 편집하며, 기존 React/Next.js 소스 코드를 분석해 설계로 변환하거나 수정 내용을 기존 소스에 병합하지 않습니다.
 
 ## 구성
 
@@ -14,7 +14,7 @@
 
 ## 확장 실행
 
-VS Code에서 `visualWeb/` 또는 상위 `git/` 폴더를 열고 실행 및 디버그(Ctrl+Shift+D)에서 **Run VisualWeb Extension**을 선택한 뒤 F5를 누릅니다. 새 Extension Development Host 창에는 먼저 빈 디자이너 캔버스가 열립니다. **폴더 불러오기**로 작업할 프로젝트를 선택하세요. JSON으로 열리면 파일 탭에서 **Reopen Editor With… → VisualWeb Designer**를 선택합니다. 명령 팔레트에서 **VisualWeb: New React Form**을 실행하거나 `extension/examples/members.visualweb.json`을 엽니다. 필드를 추가·편집·재정렬한 뒤 저장하고 **Save As...**을 선택합니다. 생성 대상은 새 폴더여야 합니다.
+VS Code에서 `visualWeb/` 폴더를 열고 실행 및 디버그(Ctrl+Shift+D)에서 **Run VisualWeb Extension**을 선택한 뒤 F5를 누릅니다. 새 Extension Development Host 창에는 빈 디자이너가 열립니다. **폴더 불러오기**로 VisualWeb 프로젝트를 선택하거나 `extension/examples/members.visualweb.json`을 엽니다. JSON으로 열리면 파일 탭에서 **Reopen Editor With… → VisualWeb Designer**를 선택합니다. 새 설계는 명령 팔레트의 **VisualWeb: 새 프로젝트**로 만들 수 있습니다. 편집한 뒤 저장하고 **Save As...**을 선택하면 앱을 생성합니다. 생성 대상은 새 폴더여야 합니다.
 
 ## 샘플 앱 실행
 
@@ -53,7 +53,7 @@ node extension/src/cli.js extension/examples/members.visualweb.json /tmp/new-vis
 
 브라우저 테스트는 로컬 Chrome을 사용합니다 (`CHROME_PATH` 지정 가능). VS Code 메시지 브리지는 모킹하므로 실제 저장·Undo/Redo·내보내기는 F5로 확인하세요. 생성된 `frontend/schema.json`과 VisualBack의 모델 및 DB 테이블을 일치시켜야 합니다.
 
-현재 텍스트/이메일/숫자 필드의 단일 모델과 등록·조회만 지원합니다. 생성 코드는 새 폴더에 작성하며 수동 수정 코드와 자동 병합하지 않습니다. DB 초기화 파일은 VisualBack으로 이동했으며 API 테스트는 Java MockMvc로 작성했습니다. 현재 백엔드는 회원(name/email) API를 구현하며, 다른 폼에는 별도 DTO·서비스·마이그레이션 구현이 필요합니다.
+VisualBack 예제 백엔드는 회원(name/email) 모델의 등록·조회·수정·삭제 API를 제공합니다. VisualWeb 설계에 따라 Java API나 DB 스키마를 자동 생성하지 않으므로 다른 모델에는 별도 DTO·서비스·마이그레이션 구현이 필요합니다. 백엔드 API 테스트는 Java MockMvc로 작성했습니다.
 
 ## 컴포넌트 배치
 
@@ -101,7 +101,7 @@ Grid 셀 안의 Button도 직접 클릭해 선택하고 오른쪽 **버튼 텍�
 
 폼 저장 버튼이나 Grid를 선택하면 오른쪽 **연결할 API**에서 팝업에 등록한 API를 선택합니다. 버튼은 등록한 HTTP 메서드, Grid는 GET API를 사용합니다. 기본 설정을 선택하면 직접 경로를 입력할 수도 있습니다. 사용 중인 API는 컴포넌트 연결을 바꾼 뒤 삭제할 수 있습니다. 빈 값은 화면 설정을 따릅니다. 요청 JSON 키는 입력 컴포넌트의 **API 필드 이름**을 사용하며 숫자 필드는 JSON 숫자로 전송합니다. 상단 **저장하기** 또는 Ctrl+S로 열린 폴더의 `project.visualweb.json`을 업데이트한 뒤 미리보기 또는 새 프로젝트 생성으로 적용합니다. 이미 생성한 앱에는 재생성해서 적용하세요.
 
-API 응답은 `success`, `message`, `data` 구조를 사용합니다. Grid는 `data` 안의 `columns`와 `data` 행 배열을 읽습니다. 페이지 조회는 최상위 `pageNo`, `totalCount`를 사용하며, 이전/다음 버튼에서 해당 조회 API에 `page`, `size`를 전달합니다. 정렬과 필터는 현재 받은 페이지에 적용합니다. API 요청은 생성된 Next.js 서버에서 프록시로 전달되므로 브라우저에서 VisualBack에 직접 접속하지 않습니다.
+VisualBack 샘플 API의 응답은 `success`, `message`, `data` 구조를 사용합니다. Grid는 `data` 안의 `columns`와 `data` 행 배열을 읽습니다. 생성된 화면은 API 응답에 최상위 `pageNo`, `totalCount`가 있으면 이전/다음 버튼으로 `page`, `size`를 전달하는 서버 페이지 이동을 사용합니다. 이 메타데이터가 없으면 받은 데이터에 로컬 페이지 이동을 적용합니다. 정렬과 필터는 현재 받은 데이터에 적용합니다. 샘플 VisualBack의 `/api/grid`는 페이지 메타데이터를 반환하지 않으므로 원격 페이지 이동을 사용하려면 이를 지원하도록 API를 구현해야 합니다. API 요청은 생성된 Next.js 서버에서 프록시로 전달되므로 브라우저에서 VisualBack에 직접 접속하지 않습니다.
 
 상단 **저장하기**는 현재 열린 설계 문서를 같은 경로에 저장합니다. **Save As...**은 별도 폴더에 앱 코드를 생성합니다. 입력 변경을 반영 중에 저장을 눌러도 반영 완료 후 저장합니다.
 

@@ -1,4 +1,6 @@
-# VisualWeb
+# VisualWeb — 제품 비전 및 로드맵
+
+이 문서는 제품의 목표와 장기 로드맵을 설명하며, 현재 구현된 기능 목록은 아니다. 현재 제품은 VisualWeb 설계 JSON을 편집하고 Next.js 프론트엔드를 생성하는 MVP다. 기존 React/Next.js JSX·TSX를 분석해 UI Model로 변환하거나 원본 코드에 편집 내용을 병합하는 기능은 아직 구현되지 않았다. 동작 중인 기능과 제한 사항은 `visualWeb/README.md`, Spring Boot 예제의 범위는 `backend/README.md`를 기준으로 한다.
 
 ## 1. 프로젝트 개요
 
@@ -114,7 +116,7 @@ VisualWeb의 주요 사용자는 웹 애플리케이션을 개발하는 개발�
 
 VisualWeb의 첫 번째 목표는 거대한 RAD 플랫폼을 만드는 것이 아니다.
 
-첫 번째 목표는 다음 한 가지를 실제로 동작시키는 것이다.
+장기 목표는 다음 흐름을 실제로 동작시키는 것이다. 현재 구현 상태와 혼동하지 않도록 한다.
 
 > **기존 Next.js 프로젝트를 VisualWeb에서 열고, 화면을 시각적으로 수정한 뒤 저장하면 실제 프로젝트 코드가 변경된다.**
 
@@ -136,7 +138,7 @@ Property 수정
 실제 React / Next.js 코드 변경
 ```
 
-이 기능이 VisualWeb의 첫 번째 검증 대상이다.
+이 기능은 아직 구현되지 않은 첫 번째 제품 검증 목표다.
 
 ---
 
@@ -616,7 +618,7 @@ VisualWeb은 기존 VS Code 개발환경과 경쟁하기보다 VS Code를 확장
 
 # 23. 개발 우선순위
 
-## Phase 1 — 최소 기능
+## Phase 1 — 최소 기능 (미완료)
 
 목표:
 
@@ -637,7 +639,7 @@ VisualWeb은 기존 VS Code 개발환경과 경쟁하기보다 VS Code를 확장
 
 ---
 
-## Phase 2 — UI Model
+## Phase 2 — UI Model (부분 구현)
 
 * UI Model 정의
 * JSX → UI Model
@@ -649,7 +651,7 @@ VisualWeb은 기존 VS Code 개발환경과 경쟁하기보다 VS Code를 확장
 
 ---
 
-## Phase 3 — 개발 기능
+## Phase 3 — 개발 기능 (대부분 미착수)
 
 * Monaco Editor
 * Event Editor
@@ -661,7 +663,7 @@ VisualWeb은 기존 VS Code 개발환경과 경쟁하기보다 VS Code를 확장
 
 ---
 
-## Phase 4 — AI
+## Phase 4 — AI (미착수)
 
 * 자연어 UI 생성
 * 자연어 UI 수정
@@ -672,7 +674,7 @@ VisualWeb은 기존 VS Code 개발환경과 경쟁하기보다 VS Code를 확장
 
 ---
 
-## Phase 5 — 고급 기능
+## Phase 5 — 고급 기능 (미착수)
 
 * Design System
 * Component Library
