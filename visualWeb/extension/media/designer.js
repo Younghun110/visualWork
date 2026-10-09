@@ -3,6 +3,7 @@ const vscode=acquireVsCodeApi(), L=window.VisualWebLayout;
 const $=id=>document.getElementById(id);
 let apiDraft,apiApplying=false,postApiGenerating=false,postApiRequestId,postApiListLoading=false,postApiListRequestId,postApiOperations=[],eventDraft={},eventNodeId,eventApplying=false,eventApplySnapshot,saveRequested=false;
 let project,activeScreen='main',model,version,selected,pending=false,dragOffset={x:0,y:0},previewBusy=false;
+const sendBackButton=document.createElement('button');sendBackButton.type='button';sendBackButton.textContent='맨 뒤로 보내기';sendBackButton.hidden=true;$('delete').before(sendBackButton);
 function setStatus(text,error=false){$('status').textContent=text;$('status').classList.toggle('error',error);}
 function applyCustomStyle(element,node){
   if(node.className)element.classList.add(...node.className.split(/\s+/).filter(Boolean));
@@ -30,11 +31,22 @@ function zone(parent,index){
   el.ondragover=e=>{e.preventDefault();e.stopPropagation();el.classList.add('drag-over');};
   el.ondragleave=()=>el.classList.remove('drag-over');el.ondrop=e=>drop(e,parent,index);return el;
 }
+function addResizeHandle(element,node){
+  const handle=document.createElement('button');handle.type='button';handle.className='resize-handle';handle.setAttribute('aria-label','컴포넌트 크기 조절');handle.title='드래그해 크기 조절';handle.draggable=false;
+  handle.onpointerdown=event=>{
+    event.preventDefault();event.stopPropagation();handle.setPointerCapture(event.pointerId);
+    const startX=event.clientX,startY=event.clientY,startWidth=node.type==='button'?(node.buttonAreaWidth??node.position.width):node.position.width;
+    const startHeight=node.height||L.defaultHeight(node);const canResizeHeight=['container','grid'].includes(node.type);
+    const move=moveEvent=>{node.position.width=Math.max(80,Math.min(2000,Math.round(startWidth+moveEvent.clientX-startX)));element.style.width=node.position.width+'px';if(node.type==='button')element.style.width=node.position.width+'px';if(canResizeHeight){node.height=Math.max(node.type==='grid'?120:40,Math.min(1200,Math.round(startHeight+moveEvent.clientY-startY)));element.style.height=node.height+'px';}};
+    const finish=()=>{handle.removeEventListener('pointermove',move);handle.removeEventListener('pointerup',finish);handle.removeEventListener('pointercancel',finish);edit(()=>{if(node.type==='button')node.buttonAreaWidth=node.position.width;});};
+    handle.addEventListener('pointermove',move);handle.addEventListener('pointerup',finish,{once:true});handle.addEventListener('pointercancel',finish,{once:true});
+  };element.append(handle);
+}
 function renderNodes(nodes,target,parent=null){
   nodes.forEach((node,index)=>{
     if(parent&&node.type!=='cell')target.append(zone(parent,index));
     const el=document.createElement('div');el.className='field component'+(node.id===selected?' selected':'')+(node.span===2?' wide':'');el.draggable=node.type!=='cell';el.tabIndex=0;el.dataset.id=node.id;
-    if(node.type==='container'&&node.height)el.style.height=node.height+'px';
+    if(['container','grid'].includes(node.type)&&node.height)el.style.height=node.height+'px';
     if(parent&&node.type==='cell'){const grid=L.find(model.components,parent);if(grid?.rowHeight)el.style.minHeight=grid.rowHeight+'px';}
     applyCustomStyle(el,node);
     if(!parent){el.classList.add('free-component');el.style.left=node.position.x+'px';el.style.top=node.position.y+'px';el.style.width=node.position.width+'px';}
@@ -67,6 +79,7 @@ function renderNodes(nodes,target,parent=null){
       if(node.type!=='grid')el.ondragover=e=>{e.preventDefault();e.stopPropagation();el.classList.add('drag-over');};
       el.ondragleave=()=>el.classList.remove('drag-over');if(node.type!=='grid')el.ondrop=e=>drop(e,node.id,node.children.length);
     }
+    if(!parent&&node.id===selected)addResizeHandle(el,node);
     target.append(el);
   });if(parent&&(!nodes.length || nodes[0].type!=='cell'))target.append(zone(parent,nodes.length));
 }
@@ -92,7 +105,7 @@ function render(){
     $('fields').style.minHeight=Math.max(1000,...elements.map(el=>el.offsetTop+el.offsetHeight+40))+'px';
     $('fields').style.minWidth=Math.max(800,...elements.map(el=>el.offsetLeft+el.offsetWidth+16))+'px';
   });
-  const node=L.find(model.components,selected);$('empty').hidden=!!node;$('properties').hidden=!node;if(!node)return;
+  const node=L.find(model.components,selected);$('empty').hidden=!!node;$('properties').hidden=!node;sendBackButton.hidden=node?.type!=='container';if(!node)return;
   const root=model.components.includes(node);$('position-properties').hidden=!root;$('span-property').hidden=root&&node.type!=='button';
   if(root){$('pos-x').value=node.position.x;$('pos-y').value=node.position.y;$('pos-width').value=node.position.width;}if($('pos-width').parentElement)$('pos-width').parentElement.hidden=node.type==='button';
   $('button-api-selection').hidden=node.type!=='button';renderApiSelect('button-api-id',node,'ACTION');renderApiSelect('grid-api-id',node,'GET');
@@ -313,6 +326,7 @@ function deleteSelectedComponent(){if(!selected)return;edit(()=>{
   selected=null;
 });}
 $('delete').onclick=deleteSelectedComponent;
+sendBackButton.onclick=()=>edit(()=>{const source=L.location(model.components,selected);if(!source||L.find(model.components,selected)?.type!=='container')return;const [node]=source.nodes.splice(source.index,1);source.nodes.unshift(node);});
 for(const [id,delta]of [['up',-1],['down',1]])$(id).onclick=()=>edit(()=>{
   const source=L.location(model.components,selected);if(!source)return;if(source.nodes===model.components){const node=source.nodes[source.index];node.position.y=Math.max(0,node.position.y+delta*16);return;}const next=source.index+delta;
   if(next>=0&&next<source.nodes.length)[source.nodes[source.index],source.nodes[next]]=[source.nodes[next],source.nodes[source.index]];

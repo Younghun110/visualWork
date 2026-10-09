@@ -6,3 +6,52 @@
 
 .vw-workspace .vw-data-grid th{padding:8px 10px}.vw-workspace .vw-data-grid td{padding:6px 8px;vertical-align:middle}.vw-data-grid td .vw-button-row{min-height:max(18px,min(30px,calc(var(--vw-grid-row-height,44px) - 12px)))!important;align-items:center!important}.vw-data-grid td .vw-primary-button{height:max(18px,min(30px,calc(var(--vw-grid-row-height,44px) - 12px)))!important;min-height:18px!important;min-width:0;padding:4px 12px;font-size:12px;line-height:1.2}
 .vw-popup-backdrop{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;background:rgba(15,18,24,.48)}.vw-popup{position:relative;width:min(900px,100%);max-width:100%;max-height:90vh;overflow:auto;padding:28px;background:#fff;border-radius:8px;box-shadow:0 24px 80px rgba(0,0,0,.24)}.vw-popup-close{position:sticky;top:0;float:right;z-index:1;width:32px;height:32px;padding:0;border:1px solid #e3e4e6;border-radius:50%;background:white;color:#171a20;font-size:22px;line-height:1}
+
+/* Blue workspace theme: spacious surfaces and crisp controls inspired by Tesla's visual restraint. */
+.vw-workspace{--vw-ink:#10233f;--vw-muted:#667994;--vw-line:#dce6f2;background:#f4f8fd;color:var(--vw-ink)}
+.vw-sidebar{background:#fff;border-right-color:#e3ebf5;padding-top:30px}
+.vw-brand strong{letter-spacing:1.8px;color:#10233f}
+.vw-brand-mark{color:#1769e0}
+.vw-menu-search{border:1px solid #e3ebf5;border-radius:10px;background:#f7faff;color:#7184a0}
+.vw-menu-search input::placeholder{color:#91a0b5}
+.vw-menu-search:focus-within{outline:2px solid #b8d2fa}
+.vw-nav-label,.vw-sidebar-footer{color:#8493a8}
+.vw-sidebar nav button{border-radius:9px;color:#52647d}
+.vw-sidebar nav button.active{background:#eaf2ff;color:#155bc0}
+.vw-sidebar nav button:hover{background:#f2f7ff;color:#155bc0}
+.vw-workspace-header{border-bottom-color:#e5ecf5}
+.vw-workspace-header h1{font-weight:600;color:#10233f}
+.vw-workspace-label{color:#8a9ab0}
+.vw-tab-strip{background:#fbfdff;border-bottom-color:#e5ecf5}
+.vw-screen-tab{color:#8291a7}
+.vw-screen-tab.active{color:#155fc9;border-bottom-color:#1769e0}
+.vw-close-tab:hover{color:#1769e0}
+.vw-workspace-content{padding-top:52px}
+.vw-screen-eyebrow{color:#3978ce;letter-spacing:2px}
+.vw-screen-title{font-size:clamp(30px,3vw,40px);font-weight:600;letter-spacing:-1.25px;color:#10233f}
+.vw-screen-surface{border-color:#e1eaf5;border-radius:16px;background:#fff;padding:clamp(22px,3vw,36px);box-shadow:0 8px 28px rgba(24,64,119,.045)}
+.vw-form-status{color:#667994}
+.vw-empty-workspace h2{color:#10233f}
+.vw-workspace button:focus-visible{outline:2px solid #4389ee;outline-offset:3px}
+.vw-input{border-color:#d9e3ef;border-radius:9px;background:#f9fbfe;color:#10233f}
+.vw-input:hover{border-color:#a9bfdc}
+.vw-input:focus{border-color:#2878e5;background:#fff;box-shadow:0 0 0 3px rgba(40,120,229,.14)}
+.vw-primary-button{border-radius:999px;background:#1769e0;font-weight:600;letter-spacing:.1px;box-shadow:0 4px 12px rgba(23,105,224,.16)}
+.vw-primary-button:hover{background:#0e56bf}
+.vw-primary-button:disabled{box-shadow:none}
+.vw-radio-options input{accent-color:#1769e0}
+.vw-workspace .vw-data-grid{border-color:#e0e9f4;border-radius:12px;overflow:hidden}
+.vw-workspace .vw-data-grid th{background:#f2f7fd;border-color:#e0e9f4;color:#38516f;font-weight:600}
+.vw-workspace .vw-data-grid td{border-color:#edf2f8;color:#263b58}
+.vw-workspace .vw-data-grid tbody tr:nth-child(even){background:#fbfdff}
+.vw-workspace .vw-data-grid tbody tr:hover{background:#f0f6ff}
+.vw-workspace .vw-data-grid tbody tr.is-selected{background:#e7f1ff}
+.vw-workspace .vw-data-grid th input{border-color:#dce6f2;border-radius:7px;background:#fff}
+.vw-workspace .vw-data-grid footer{background:#f8fbff;border-color:#e0e9f4;color:#667994}
+.vw-workspace .vw-data-grid footer button{border-color:#d7e3f1;border-radius:8px;color:#1c4f91;background:#fff}
+.vw-workspace .vw-data-grid footer button:hover{border-color:#9fc1ef;background:#f0f6ff}
+.vw-workspace .vw-column-grip{color:#91a8c4}
+.vw-popup{border:1px solid #e1eaf5;border-radius:18px;box-shadow:0 24px 80px rgba(16,42,79,.2)}
+.vw-popup-close{border-color:#e0e9f4;color:#46617f}
+.vw-popup-close:hover{border-color:#a9c6ec;color:#1769e0}
+@media(max-width:650px){.vw-workspace-content{padding:30px 12px}.vw-screen-surface{border-radius:13px}.vw-workspace-header h1{color:#10233f}}

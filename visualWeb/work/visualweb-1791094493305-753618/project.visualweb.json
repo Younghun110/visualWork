@@ -227,59 +227,17 @@
       ],
       "components": [
         {
-          "id": "component_628cb288-fbe8-4392-81ae-19040c42042e",
-          "type": "input",
-          "field": "title",
-          "span": 1,
+          "id": "component_0c4f7c78-edc9-49ed-8f3f-223c99ff5007",
+          "type": "container",
+          "span": 2,
+          "children": [],
+          "direction": "flow",
           "position": {
             "x": 0,
-            "y": 20,
-            "width": 320
-          }
-        },
-        {
-          "id": "component_73b46147-ac15-4b98-a56c-d4bb75e45987",
-          "type": "textarea",
-          "field": "content",
-          "span": 1,
-          "position": {
-            "x": 0,
-            "y": 110,
-            "width": 320
+            "y": 0,
+            "width": 607
           },
-          "rows": 5
-        },
-        {
-          "id": "component_96b71d49-f69f-434d-9537-0e2f9b587d99",
-          "type": "input",
-          "field": "author",
-          "span": 1,
-          "position": {
-            "x": 0,
-            "y": 286,
-            "width": 320
-          }
-        },
-        {
-          "id": "component_79efeada-7c73-4b90-939a-320118cc6805",
-          "type": "button",
-          "span": 1,
-          "text": "버튼",
-          "action": "button",
-          "position": {
-            "x": 343,
-            "y": 329,
-            "width": 180
-          },
-          "align": "right",
-          "events": {
-            "onClick": [
-              {
-                "type": "submitForm"
-              }
-            ]
-          },
-          "apiId": "api_ed09f8a7-d63e-441b-9733-efe605acca91"
+          "height": 393
         },
         {
           "id": "component_b0243b36-35da-4dd7-af7a-50b420fbdbc8",
@@ -608,6 +566,61 @@
             "width": 960
           },
           "apiId": "api_0b49c5fd-fdbc-4cd4-92ee-14a05b62e4b1"
+        },
+        {
+          "id": "component_628cb288-fbe8-4392-81ae-19040c42042e",
+          "type": "input",
+          "field": "title",
+          "span": 1,
+          "position": {
+            "x": 26,
+            "y": 14,
+            "width": 320
+          }
+        },
+        {
+          "id": "component_73b46147-ac15-4b98-a56c-d4bb75e45987",
+          "type": "textarea",
+          "field": "content",
+          "span": 1,
+          "position": {
+            "x": 27,
+            "y": 113,
+            "width": 320
+          },
+          "rows": 5
+        },
+        {
+          "id": "component_96b71d49-f69f-434d-9537-0e2f9b587d99",
+          "type": "input",
+          "field": "author",
+          "span": 1,
+          "position": {
+            "x": 32,
+            "y": 274,
+            "width": 320
+          }
+        },
+        {
+          "id": "component_79efeada-7c73-4b90-939a-320118cc6805",
+          "type": "button",
+          "span": 1,
+          "text": "버튼",
+          "action": "button",
+          "position": {
+            "x": 385,
+            "y": 301,
+            "width": 180
+          },
+          "align": "right",
+          "events": {
+            "onClick": [
+              {
+                "type": "submitForm"
+              }
+            ]
+          },
+          "apiId": "api_ed09f8a7-d63e-441b-9733-efe605acca91"
         }
       ],
       "apis": [
