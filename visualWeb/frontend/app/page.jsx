@@ -11,6 +11,7 @@ export default function Page(){return <WorkspaceShell project={project}>{(screen
 function Screen({schema,navigate,contextRow,active=false,registerLifecycle,isPopup=false,onClosePopup,onReloadParentGrid}){
   const [gridData,setGridData]=useState({});
   const [popupView,setPopupView]=useState(null);
+  const [dialog,setDialog]=useState(null);const dialogResolver=useRef(null);
   const [message,setMessage]=useState(''),[busy,setBusy]=useState(false);
   const [selectedRows,setSelectedRows]=useState({});const formRef=useRef(null);
   const popupLoadStarted=useRef(false),pageLifecycle=useRef({});
@@ -72,21 +73,24 @@ function Screen({schema,navigate,contextRow,active=false,registerLifecycle,isPop
   pageLifecycle.current={load:()=>runPageEvent('onLoadPage'),unload:()=>runPageEvent('onUnloadPage')};
   useLayoutEffect(()=>registerLifecycle?.(schema.id||'main',{load:()=>pageLifecycle.current.load(),unload:()=>pageLifecycle.current.unload()}),[registerLifecycle,schema.id]);
   useLayoutEffect(()=>{if(isPopup&&!popupLoadStarted.current){popupLoadStarted.current=true;pageLifecycle.current.load();}},[isPopup,schema.id]);
-  async function invoke(node,row){const result=await invokeApi(node?.apiId,node,row);if(result?.success&&isPopup){window.alert(result.message);closePopup();}return result;}
+  function showMessageBox(message,title='안내'){return new Promise(resolve=>{dialogResolver.current=resolve;setDialog({type:'message',title,message:String(message??'')});});}
+  function showConfirmBox(message,title='확인'){return new Promise(resolve=>{dialogResolver.current=resolve;setDialog({type:'confirm',title,message:String(message??'')});});}
+  function finishDialog(result){const resolve=dialogResolver.current;dialogResolver.current=null;setDialog(null);resolve?.(result);}
+  async function invoke(node,row){const result=await invokeApi(node?.apiId,node,row);if(result?.success&&isPopup){await showMessageBox(result.message,'처리 완료');closePopup();}return result;}
   async function executeEvent(node,eventName,row){
     const actions=node.events?.[eventName];
     if(eventName==='onClick'&&!actions?.length&&(node.action==='submit'||node.apiId))return invoke(node,row);
     for(let actionIndex=0;actionIndex<(actions||[]).length;actionIndex++){
       const action=actions[actionIndex];
-      if(action.type==='confirm'){const record=row||contextRow||{};const message=action.message.replace(/\{([a-zA-Z][a-zA-Z0-9_]*)\}/g,(_,key)=>cellText(record[key]));if(!window.confirm(message))return;}
-      else if(action.type==='callApi'){const hasExplicitReload=actions.slice(actionIndex+1).some(next=>next.type==='reloadGrid');const result=await invokeApi(action.apiId,node,row,{refreshGrids:!hasExplicitReload});if(!result.success)return;window.alert(result.message);if(isPopup)closePopup();}
+      if(action.type==='confirm'){const record=row||contextRow||{};const message=action.message.replace(/\{([a-zA-Z][a-zA-Z0-9_]*)\}/g,(_,key)=>cellText(record[key]));if(!await showConfirmBox(message))return;}
+      else if(action.type==='callApi'){const hasExplicitReload=actions.slice(actionIndex+1).some(next=>next.type==='reloadGrid');const result=await invokeApi(action.apiId,node,row,{refreshGrids:!hasExplicitReload});if(!result.success)return;await showMessageBox(result.message,'처리 완료');if(isPopup)closePopup();}
       else if(action.type==='submitForm'){const result=await invoke(node,row);if(!result?.success)return;}
       else if(action.type==='reloadGrid'){
         const grid=grids(schema.components||[]).find(item=>item.id===action.componentId);
         if(!grid){setMessage('success: false · message: 다시 불러올 Grid를 찾을 수 없습니다.');return;}
         try{await loadGrid(grid);}catch(error){setMessage(`success: false · message: Grid 조회 실패: ${error.message}`);return;}
       }
-      else if(action.type==='showMessage')setMessage(action.message);
+      else if(action.type==='showMessage')await showMessageBox(action.message);
       else if(action.type==='navigate')navigate(action.screenId);
       else if(action.type==='popupView'){const target=action.viewId||action.screenId;const view=project.popupViews?.find(item=>item.id===target)||(action.viewId===undefined?(target==='main'?project:project.screens?.find(screen=>screen.id===target)):undefined);if(view){const sourceRow=row||contextRow||{},field=action.primaryKeyField||'id',param=action.primaryKeyParam||'id',popupRow={...sourceRow};if(sourceRow[field]!==undefined)popupRow[param]=sourceRow[field];setPopupView({view,row:popupRow});}else setMessage('팝업으로 표시할 View를 찾을 수 없습니다.');}
       else if(action.type==='closePopup'){if(isPopup)closePopup();else setMessage('이 액션은 팝업 View 안에서만 사용할 수 있습니다.');}
@@ -149,6 +153,7 @@ function Screen({schema,navigate,contextRow,active=false,registerLifecycle,isPop
       <FreeCanvas nodes={components} renderNode={renderNode} />
     </form>
     <p role="status" className="vw-form-status">{message}</p>
+    {dialog&&<div className="vw-dialog-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget&&dialog.type==='message')finishDialog(true);}}><section className={'vw-dialog '+(dialog.type==='confirm'?'vw-dialog-confirm':'vw-dialog-message')} role="alertdialog" aria-modal="true" aria-labelledby="vw-dialog-title" aria-describedby="vw-dialog-message"><div className={'vw-dialog-icon '+(dialog.type==='confirm'?'is-confirm':'')}>{dialog.type==='confirm'?'?':'!'}</div><div className="vw-dialog-content"><h2 id="vw-dialog-title">{dialog.title}</h2><p id="vw-dialog-message">{dialog.message}</p><div className="vw-dialog-actions">{dialog.type==='confirm'&&<button type="button" className="vw-dialog-button secondary" onClick={()=>finishDialog(false)}>취소</button>}<button type="button" autoFocus className="vw-dialog-button primary" onClick={()=>finishDialog(dialog.type==='confirm')}>확인</button></div></div></section></div>}
     {popupView&&<div className="vw-popup-backdrop" onClick={closePopup}><section className="vw-popup" role="dialog" aria-modal="true" aria-label={popupView.view.title} onClick={event=>event.stopPropagation()} style={{...(popupView.view.width?{width:popupView.view.width}:{}),...(popupView.view.height?{height:popupView.view.height}:{})}}><button type="button" className="vw-popup-close" aria-label="팝업 닫기" onClick={closePopup}>×</button><Screen key={popupView.view.id||'main'} schema={popupView.view} navigate={navigate} contextRow={popupView.row} isPopup onClosePopup={closePopup} onReloadParentGrid={async()=>{try{await load();setSelectedRows({});}catch(error){setMessage(`success: true · message: 저장은 완료됐지만 Grid 갱신에 실패했습니다: ${error.message}`);}}}/></section></div>}
   </main>;
 }
