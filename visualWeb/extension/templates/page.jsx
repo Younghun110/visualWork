@@ -130,11 +130,12 @@ function Screen({schema,navigate,contextRow,active=false,registerLifecycle,isPop
         displayColumns.push({field,title:'',width:node.columnWidths?.[index]||180,sorter:'string',hozAlign:'left',headerSort:false});
       }
       displayColumns.forEach((column,index)=>{if(node.headerTitles?.[index]?.trim())column.title=node.headerTitles[index].trim();});
+      const cellForColumn=column=>Array.from({length:node.rows},(_,templateRow)=>node.children[templateRow*node.columns+column]).find(cell=>cell?.children?.length)||node.children[column];
       return <div key={node.id} className={classNames(width,'min-w-0 w-full',node.className)} style={node.style}>
       <DataGrid definition={node} payload={{...payload,columns:displayColumns}} onSelectionChange={row=>setSelectedRows(previous=>({...previous,[node.id]:row}))} onPageChange={page=>loadGrid(node,page).catch(e=>setMessage(e.message))} renderCell={(row,column,c,r)=>{
-        const cell=node.children[(r%node.rows)*node.columns+c];
+        const cell=cellForColumn(c);
         const colSpan=cell?.colSpan||1,rowSpan=cell?.rowSpan||1,content=[];
-        for(let offset=0;offset<colSpan&&c+offset<node.columns;offset++){const sourceColumn=c+offset,sourceCell=node.children[(r%node.rows)*node.columns+sourceColumn],sourceField=displayColumns[sourceColumn]?.field,value=row[sourceField];if(sourceCell?.children.length)content.push(...sourceCell.children.map(child=>renderNode(child,value,row)));else content.push(cellText(value));}
+        for(let offset=0;offset<colSpan&&c+offset<node.columns;offset++){const sourceColumn=c+offset,sourceCell=cellForColumn(sourceColumn),sourceField=displayColumns[sourceColumn]?.field,value=row[sourceField];if(sourceCell?.children.length)content.push(...sourceCell.children.map(child=>renderNode(child,value,row)));else content.push(cellText(value));}
         return {content, colSpan, rowSpan};
       }} />
       </div>;

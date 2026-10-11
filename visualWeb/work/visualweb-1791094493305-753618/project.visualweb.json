@@ -292,6 +292,50 @@
               "children": []
             },
             {
+              "id": "cell_ddc4a080-0bb6-4f3e-975f-84ece2fcfc2d",
+              "type": "cell",
+              "span": 1,
+              "children": [
+                {
+                  "id": "component_bc3997d6-0561-4762-aba0-9a04354ad485",
+                  "type": "button",
+                  "span": 1,
+                  "text": "수정",
+                  "action": "button",
+                  "events": {
+                    "onClick": [
+                      {
+                        "type": "popupView",
+                        "viewId": "popup_60ec5752-91bf-4cdc-b410-822eb8d15959",
+                        "primaryKeyField": "id",
+                        "primaryKeyParam": "id"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "component_06fdfe7f-bc74-4d37-b6fc-b22c0c929690",
+                  "type": "button",
+                  "span": 1,
+                  "text": "삭제",
+                  "action": "button",
+                  "events": {
+                    "onClick": [
+                      {
+                        "type": "confirm",
+                        "message": "{title}정말  삭제 하시겠습니까?"
+                      },
+                      {
+                        "type": "callApi",
+                        "apiId": "api_0ff7a988-c5bb-4cea-8504-9547347e34b7"
+                      }
+                    ]
+                  },
+                  "apiId": "api_0ff7a988-c5bb-4cea-8504-9547347e34b7"
+                }
+              ]
+            },
+            {
               "id": "cell_677ab2eb-8328-44dd-b5f1-6ad6832b789b",
               "type": "cell",
               "span": 1,
@@ -317,6 +361,12 @@
             },
             {
               "id": "cell_8b8d8184-c825-467e-b16c-dd5327fcec64",
+              "type": "cell",
+              "span": 1,
+              "children": []
+            },
+            {
+              "id": "cell_540a1c67-ed6f-4634-8d3b-324cc86d81e5",
               "type": "cell",
               "span": 1,
               "children": []
@@ -352,6 +402,12 @@
               "children": []
             },
             {
+              "id": "cell_1f7e3751-c121-4824-ae56-ad492dd119b1",
+              "type": "cell",
+              "span": 1,
+              "children": []
+            },
+            {
               "id": "cell_ef563bcd-c3b5-479f-a34f-cc3df4e803bf",
               "type": "cell",
               "span": 1,
@@ -382,181 +438,7 @@
               "children": []
             },
             {
-              "id": "cell_d3e915e9-78a5-4cac-b64e-d5fdc685140f",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_447d914c-be79-4c8c-a177-e8436363ff46",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_2eaec6b4-958b-44fa-9640-3cfc659d1af0",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_9ff7af66-6107-41b6-b91f-62848f01d457",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_b211124f-5a9d-4441-a2c6-f202f4d3b4d5",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_1004a9c3-8019-479e-91e1-cfc9246af565",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_42dd3d08-cfd3-448a-9787-5ecab5fa4827",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_51bca9c6-1948-4298-9f12-bc2fd72ad025",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_296cd5f5-bea1-4dbe-a18a-72c3190a813c",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_e9a9188f-e9cd-4d06-bce2-dd5ef03df91f",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_cf7538b1-28f6-4065-b2a7-f0205b43d07e",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_10545daf-539e-4a2b-a6c2-9b326cb38d43",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_7dcdb70c-abee-4812-916c-62b02adfaf3e",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_7f47e034-9343-4dfa-9e6b-d411e2b1a55f",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_ec98e7c3-57ee-4db7-8978-e3e14f2cad88",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_3e5efd3e-03b4-426e-acf6-9c5ded677b79",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_e1de8d50-40cd-430b-8d50-5ca2e89d2fb0",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_3c0ba164-8456-4d13-9b3c-6c55db62ef10",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_1f91a1d4-eb1c-44a5-913c-15a5f895e9c0",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_70c3a90c-561b-414a-982f-2cab77ebbefe",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_1d3cfbd8-6469-4279-9a16-2921ea900f3e",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_73493199-eba9-4963-ab50-d9eca669b3e9",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_c5d8c0b9-90b8-4854-932f-4f6b9a6bf05a",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_a6bd2050-75fe-4328-82d2-9b0fc8cf3983",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_4f0ce768-b289-4f05-95bd-463699fa9b8c",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_5e5446d7-23dc-4e19-ba5d-0a1decb37869",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_93074e26-ddae-4a12-b3b0-bcb574046b7d",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_9c82e033-67b4-4b58-8a8f-42d9b5659f2d",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_3fc74296-3007-4300-b70a-42deae62f1bd",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_b3cc7cb1-619f-4048-87c5-a66babb1bb41",
+              "id": "cell_edda71e7-b267-4787-b50f-dacffc88f50b",
               "type": "cell",
               "span": 1,
               "children": []
@@ -565,18 +447,19 @@
           "height": 520,
           "rowHeight": 44,
           "columnWidths": [
-            180,
-            180,
-            180,
-            180,
+            100,
+            120,
+            120,
+            120,
+            120,
             180
           ],
           "pageSize": 10,
           "sortable": true,
           "headerFilter": true,
           "pagination": true,
-          "rows": 10,
-          "columns": 5,
+          "rows": 4,
+          "columns": 6,
           "position": {
             "x": 0,
             "y": 397,
@@ -622,7 +505,7 @@
           "id": "component_79efeada-7c73-4b90-939a-320118cc6805",
           "type": "button",
           "span": 1,
-          "text": "버튼",
+          "text": "저장",
           "action": "button",
           "position": {
             "x": 385,
@@ -655,6 +538,16 @@
           "name": "list",
           "method": "GET",
           "path": "/api/posts/grid"
+        },
+        {
+          "id": "api_0ff7a988-c5bb-4cea-8504-9547347e34b7",
+          "name": "del",
+          "method": "DELETE",
+          "path": "/api/posts/{id}",
+          "source": {
+            "type": "grid",
+            "componentId": "component_b0243b36-35da-4dd7-af7a-50b420fbdbc8"
+          }
         }
       ]
     }
@@ -663,7 +556,7 @@
     {
       "id": "popup_56b2dea5-6edd-4152-9f41-d00c8c5113b2",
       "version": 2,
-      "title": "업데이트",
+      "title": "업데이트-members",
       "table": "records",
       "submitLabel": "닫기",
       "fields": [
@@ -736,6 +629,115 @@
       ],
       "pageEvents": {
         "onLoadPage": "api_2c17b4ba-bf15-47e4-b026-292c26fce721"
+      }
+    },
+    {
+      "id": "popup_60ec5752-91bf-4cdc-b410-822eb8d15959",
+      "version": 2,
+      "title": "업데이트-posts",
+      "table": "records",
+      "submitLabel": "닫기",
+      "fields": [
+        {
+          "name": "title",
+          "label": "title",
+          "type": "text",
+          "required": true,
+          "unique": false,
+          "span": 1
+        },
+        {
+          "name": "content",
+          "label": "content",
+          "type": "text",
+          "required": true,
+          "unique": false,
+          "span": 1
+        },
+        {
+          "name": "author",
+          "label": "author",
+          "type": "text",
+          "required": true,
+          "unique": false,
+          "span": 1
+        }
+      ],
+      "components": [
+        {
+          "id": "component_b28d00e0-4e59-4ab3-b6d8-18a7a866cd2f",
+          "type": "input",
+          "field": "title",
+          "span": 1,
+          "position": {
+            "x": 0,
+            "y": 20,
+            "width": 320
+          }
+        },
+        {
+          "id": "component_9e8ca880-7aaa-45e8-997c-6ab897630545",
+          "type": "textarea",
+          "field": "content",
+          "span": 1,
+          "position": {
+            "x": 0,
+            "y": 120,
+            "width": 320
+          },
+          "rows": 5
+        },
+        {
+          "id": "component_b997c64d-4278-46d5-a080-ce98b6b016c9",
+          "type": "input",
+          "field": "author",
+          "span": 1,
+          "position": {
+            "x": 0,
+            "y": 286,
+            "width": 320
+          }
+        },
+        {
+          "id": "component_3d6f58e8-a493-4a94-bdef-3f61652bfdda",
+          "type": "button",
+          "span": 1,
+          "text": " 수정",
+          "action": "button",
+          "position": {
+            "x": 142,
+            "y": 403,
+            "width": 180
+          },
+          "align": "right",
+          "apiId": "api_8bfbb8ce-5e12-47a5-bcf2-3c95662b5948"
+        }
+      ],
+      "apis": [
+        {
+          "id": "api_ec7201f3-3a61-4859-91f6-0f6656e97e29",
+          "name": "create_1",
+          "method": "POST",
+          "path": "/api/posts",
+          "source": {
+            "type": "screen"
+          }
+        },
+        {
+          "id": "api_8bfbb8ce-5e12-47a5-bcf2-3c95662b5948",
+          "name": "put",
+          "method": "PUT",
+          "path": "/api/posts/{id}"
+        },
+        {
+          "id": "api_1513d1a2-1336-4d0a-a3b5-7c7af6b34f13",
+          "name": "getPost",
+          "method": "GET",
+          "path": "/api/posts/{id}"
+        }
+      ],
+      "pageEvents": {
+        "onLoadPage": "api_1513d1a2-1336-4d0a-a3b5-7c7af6b34f13"
       }
     }
   ]

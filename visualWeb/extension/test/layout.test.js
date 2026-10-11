@@ -46,6 +46,15 @@ test('Grid cell colSpan and rowSpan persist and reject spans outside the grid',(
  g.children[0].colSpan=1;g.children[0].rowSpan=3;assert.throws(()=>validate(model),/병합 범위/);
 });
 
+test('Grid cell components repeat across backend rows regardless of designer sample row',()=>{
+ const model=createForm();model.components=L.initial(model);const g=grid();model.components.push(g);
+ g.children[2].children.push({id:'row_action',type:'button',span:1,text:'열기',action:'button'});
+ const page=generate(model)['frontend/app/page.jsx'];
+ assert.match(page,/const cellForColumn=column=>Array\.from\(\{length:node\.rows\}/);
+ assert.match(page,/sourceCell=cellForColumn\(sourceColumn\)/);
+ assert.doesNotMatch(page,/r%node\.rows/);
+});
+
 test('Flow Container and backend Grid table are generated independently',()=>{
  const model=createForm();model.components=L.initial(model);
  model.components.push({id:'flow',type:'container',span:2,direction:'flow',children:[]},grid());
