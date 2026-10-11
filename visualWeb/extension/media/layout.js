@@ -134,6 +134,8 @@
           if(node.pageSize!==undefined&&(!Number.isInteger(node.pageSize)||node.pageSize<1||node.pageSize>100))throw Error('페이지당 행은 1~100입니다.');
           if (!Number.isInteger(node.columns)||node.columns<1||node.columns>50||!Number.isInteger(node.rows)||node.rows<1||node.rows>10) throw Error('Grid는 1~10행, 1~50열로 지정하세요.');
           if (!Array.isArray(node.children) || node.children.length !== node.rows * node.columns || node.children.some(cell=>cell.type !== 'cell')) throw Error('Grid 셀 구성을 확인하세요.');
+          for(let r=0;r<node.rows;r++)for(let c=0;c<node.columns;c++){const cell=node.children[r*node.columns+c],colSpan=cell.colSpan||1,rowSpan=cell.rowSpan||1;if(!Number.isInteger(colSpan)||colSpan<1||c+colSpan>node.columns||!Number.isInteger(rowSpan)||rowSpan<1||r+rowSpan>node.rows)throw Error('Grid 셀 병합 범위는 행과 열 안에 있어야 합니다.');}
+          if(node.headerColSpans!==undefined){if(!Array.isArray(node.headerColSpans)||node.headerColSpans.length!==node.columns||node.headerColSpans.some((span,column)=>!Number.isInteger(span)||span<1||column+span>node.columns))throw Error('Grid 헤더 병합 범위를 확인하세요.');const headerCovered=new Set();for(let c=0;c<node.columns;c++){if(headerCovered.has(c)){if(node.headerColSpans[c]>1)throw Error('Grid 헤더 병합 범위가 겹칩니다.');continue;}for(let x=c+1;x<c+node.headerColSpans[c];x++)headerCovered.add(x);}}
         }
         if (['grid','container','cell'].includes(node.type)) walk(node.children,depth+1,node.type);
         else if (node.children !== undefined) throw Error('하위 컴포넌트는 Container/Grid에만 추가할 수 있습니다.');
@@ -153,6 +155,7 @@
     node.rows=rows;node.columns=columns;node.children=cells;
     if(Array.isArray(node.columnWidths))node.columnWidths=node.columnWidths.slice(0,columns).concat(Array(Math.max(0,columns-node.columnWidths.length)).fill(180));
     if(Array.isArray(node.headerTitles))node.headerTitles=node.headerTitles.slice(0,columns).concat(Array(Math.max(0,columns-node.headerTitles.length)).fill(''));
+    if(Array.isArray(node.headerColSpans))node.headerColSpans=node.headerColSpans.slice(0,columns).concat(Array(Math.max(0,columns-node.headerColSpans.length)).fill(1));
   }
   const api = {initial,find,location,destination,move,validate,resizeGrid,ensurePositions,place,defaultWidth,defaultHeight,isField};
   if (typeof module !== 'undefined') module.exports = api;

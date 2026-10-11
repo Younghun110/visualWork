@@ -133,8 +133,9 @@ function Screen({schema,navigate,contextRow,active=false,registerLifecycle,isPop
       return <div key={node.id} className={classNames(width,'min-w-0 w-full',node.className)} style={node.style}>
       <DataGrid definition={node} payload={{...payload,columns:displayColumns}} onSelectionChange={row=>setSelectedRows(previous=>({...previous,[node.id]:row}))} onPageChange={page=>loadGrid(node,page).catch(e=>setMessage(e.message))} renderCell={(row,column,c,r)=>{
         const cell=node.children[(r%node.rows)*node.columns+c];
-        const value=row[column.field];
-        return c<node.columns&&cell?.children.length?cell.children.map(child=>renderNode(child,value,row)):cellText(value);
+        const colSpan=cell?.colSpan||1,rowSpan=cell?.rowSpan||1,content=[];
+        for(let offset=0;offset<colSpan&&c+offset<node.columns;offset++){const sourceColumn=c+offset,sourceCell=node.children[(r%node.rows)*node.columns+sourceColumn],sourceField=displayColumns[sourceColumn]?.field,value=row[sourceField];if(sourceCell?.children.length)content.push(...sourceCell.children.map(child=>renderNode(child,value,row)));else content.push(cellText(value));}
+        return {content, colSpan, rowSpan};
       }} />
       </div>;
     }

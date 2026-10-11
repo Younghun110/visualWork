@@ -37,6 +37,15 @@ test('rejects duplicate field bindings, malformed cells and invalid Container di
  model.components=L.initial(model);model.components.push({id:'container',type:'container',span:2,direction:'diagonal',children:[]});assert.throws(()=>validate(model));
 });
 
+test('Grid cell colSpan and rowSpan persist and reject spans outside the grid',()=>{
+ const model=createForm();model.components=L.initial(model);const g=grid();model.components.push(g);
+ g.children[0].colSpan=2;g.children[0].rowSpan=2;validate(model);
+ const schema=JSON.parse(generate(model)['frontend/schema.json']);assert.equal(schema.components.at(-1).children[0].colSpan,2);assert.equal(schema.components.at(-1).children[0].rowSpan,2);
+ assert.match(generate(model)['frontend/components/data-grid.jsx'],/colSpan=\{descriptor.colSpan/);
+ g.children[0].colSpan=3;assert.throws(()=>validate(model),/병합 범위/);
+ g.children[0].colSpan=1;g.children[0].rowSpan=3;assert.throws(()=>validate(model),/병합 범위/);
+});
+
 test('Flow Container and backend Grid table are generated independently',()=>{
  const model=createForm();model.components=L.initial(model);
  model.components.push({id:'flow',type:'container',span:2,direction:'flow',children:[]},grid());
@@ -45,7 +54,10 @@ test('Flow Container and backend Grid table are generated independently',()=>{
  assert.match(files['frontend/app/page.jsx'],/flex flex-wrap/);
  assert.match(files['frontend/components/data-grid.jsx'],/<thead/);
  assert.match(files['frontend/components/data-grid.jsx'],/<tbody/);
- assert.match(files['frontend/app/page.jsx'],/row\[column.field\]/);
+ assert.match(files['frontend/app/globals.css'],/\.vw-data-grid td \.vw-button-row\{display:inline-flex/);
+ assert.match(files['frontend/app/page.jsx'],/value=row\[sourceField\]/);
+ assert.match(files['frontend/app/page.jsx'],/sourceCell\.children\.map\(child=>renderNode\(child,value,row\)\)/);
+ assert.match(files['frontend/components/data-grid.jsx'],/definition\.headerColSpans/);
  assert.match(files['frontend/lib/api-proxy.js'],/VISUALBACK_URL/);
 });
 test('free canvas positions survive export and are removed when moved into Flow Container',()=>{

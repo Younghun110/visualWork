@@ -109,15 +109,9 @@
                     "viewId": "popup_56b2dea5-6edd-4152-9f41-d00c8c5113b2"
                   }
                 ]
-              }
-            }
-          ]
-        },
-        {
-          "id": "cell_585de643-685e-4ab1-81b5-4e316712bf13",
-          "type": "cell",
-          "span": 1,
-          "children": [
+              },
+              "buttonAreaWidth": 80
+            },
             {
               "id": "component_42d8a44c-1032-42a9-8b6d-06c26f4a9d62",
               "type": "button",
@@ -136,9 +130,26 @@
                     "apiId": "api_11317e71-7793-4d0a-bd73-20d804e8a69a"
                   }
                 ]
-              }
+              },
+              "buttonAreaWidth": 80
             }
+          ],
+          "colSpan": 2,
+          "rowSpan": 1,
+          "columnWidths": [
+            180,
+            null,
+            250,
+            250
           ]
+        },
+        {
+          "id": "cell_585de643-685e-4ab1-81b5-4e316712bf13",
+          "type": "cell",
+          "span": 1,
+          "children": [],
+          "colSpan": 1,
+          "rowSpan": 1
         }
       ],
       "height": 700,
@@ -156,8 +167,8 @@
       "apiId": "api_34b506b9-6970-446b-b3b2-a181f3eb44b8",
       "columnWidths": [
         100,
+        110,
         180,
-        99,
         100
       ],
       "headerTitles": [
@@ -165,6 +176,12 @@
         "",
         "",
         ""
+      ],
+      "headerColSpans": [
+        1,
+        1,
+        2,
+        1
       ]
     }
   ],
