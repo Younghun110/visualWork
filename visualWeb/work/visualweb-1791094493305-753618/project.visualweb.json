@@ -370,78 +370,6 @@
               "type": "cell",
               "span": 1,
               "children": []
-            },
-            {
-              "id": "cell_6ec4b8aa-cc1d-4310-b730-26c87d79214e",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_3952f84c-3b7e-4e7c-8ba3-759843edb069",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_33d2fff6-1daf-4014-b74d-b620e619195a",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_c9cc5d83-2e55-424e-a8fa-8368ff3ed368",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_0b9152d0-7f0d-45ec-aaf6-bf3a22c5dbd7",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_1f7e3751-c121-4824-ae56-ad492dd119b1",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_ef563bcd-c3b5-479f-a34f-cc3df4e803bf",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_fee1c110-9d9c-4617-bd1f-ac703f57fea5",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_a524eec3-0054-4df6-8414-2bdfd8a72da3",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_2ce496e1-31f1-4566-a630-a83fae89210a",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_5e80bd9a-cf91-416a-b573-9219aabc040b",
-              "type": "cell",
-              "span": 1,
-              "children": []
-            },
-            {
-              "id": "cell_edda71e7-b267-4787-b50f-dacffc88f50b",
-              "type": "cell",
-              "span": 1,
-              "children": []
             }
           ],
           "height": 520,
@@ -458,7 +386,7 @@
           "sortable": true,
           "headerFilter": true,
           "pagination": true,
-          "rows": 4,
+          "rows": 2,
           "columns": 6,
           "position": {
             "x": 0,
