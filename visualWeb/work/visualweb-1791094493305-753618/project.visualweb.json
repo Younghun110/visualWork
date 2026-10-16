@@ -45,7 +45,7 @@
           "span": 1,
           "text": "저장",
           "action": "submit",
-          "buttonWidth": 100,
+          "buttonWidth": 79,
           "verticalAlign": "bottom",
           "buttonAreaHeight": 44,
           "align": "center",
@@ -62,14 +62,39 @@
               }
             ]
           },
-          "offsetY": 28
+          "offsetY": 28,
+          "buttonAreaWidth": 80
+        },
+        {
+          "id": "component_8f545b96-a6d0-49ce-95df-cb42530218fc",
+          "type": "button",
+          "span": 1,
+          "text": "버튼",
+          "action": "button",
+          "buttonAreaWidth": 80,
+          "buttonWidth": 80,
+          "events": {
+            "onClick": [
+              {
+                "type": "confirm",
+                "message": "정말 진행하시겠습니까?"
+              },
+              {
+                "type": "customCode",
+                "code": "// event: 클릭 이벤트\n// row: Grid 행 데이터 (Grid 안의 버튼에서 사용)\nconsole.log(\"버튼을 클릭했습니다.\");\nalert(\"hello\");\ncontext.showMessage(\"*****************\");"
+              }
+            ]
+          },
+          "verticalAlign": "bottom",
+          "offsetY": 28,
+          "align": "center"
         }
       ],
       "direction": "flow",
       "position": {
         "x": 0,
         "y": 0,
-        "width": 880
+        "width": 997
       },
       "height": 140
     },
@@ -152,7 +177,7 @@
           "rowSpan": 1
         }
       ],
-      "height": 700,
+      "height": 690,
       "pageSize": 10,
       "sortable": true,
       "headerFilter": true,
@@ -161,8 +186,8 @@
       "columns": 4,
       "position": {
         "x": 0,
-        "y": 153,
-        "width": 880
+        "y": 158,
+        "width": 992
       },
       "apiId": "api_34b506b9-6970-446b-b3b2-a181f3eb44b8",
       "columnWidths": [
@@ -668,5 +693,8 @@
         "onLoadPage": "api_1513d1a2-1336-4d0a-a3b5-7c7af6b34f13"
       }
     }
-  ]
+  ],
+  "pageScripts": {
+    "onLoadPage": "await context.showMessage(\"hello\");"
+  }
 }

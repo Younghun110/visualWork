@@ -68,8 +68,17 @@ function Screen({schema,navigate,contextRow,active=false,registerLifecycle,isPop
       else input.value=value==null?'':String(value);
     }
   }
-  async function runPageEvent(eventName){const apiId=schema.pageEvents?.[eventName];if(!apiId)return;const result=await invokeApi(apiId,undefined,eventName==='onUnloadPage'?(contextRow||{}):contextRow,{refreshGrids:false,apiSchema:schema});if(eventName==='onLoadPage'&&result.success)populateForm(result.data);return result;}
-  function closePopup(){if(isPopup&&onClosePopup){onClosePopup();return;}if(!popupView)return;const apiId=popupView.view.pageEvents?.onUnloadPage;if(apiId)invokeApi(apiId,undefined,popupView.row||{},{refreshGrids:false,apiSchema:popupView.view,allowBusy:true});setPopupView(null);}
+  async function runPageEvent(eventName,eventSchema=schema,eventRow=contextRow){
+    const apiId=eventSchema.pageEvents?.[eventName],code=eventSchema.pageScripts?.[eventName];let result;
+    if(apiId)result=await invokeApi(apiId,undefined,eventRow||{},{refreshGrids:false,apiSchema:eventSchema,allowBusy:eventName==='onUnloadPage'});
+    if(eventName==='onLoadPage'&&result?.success)populateForm(result.data);
+    if(code)try{
+      const run=new Function('event','row','context','api',`"use strict"; return (async()=>{${code}\n})();`);
+      await run(null,eventRow||{}, {showMessage:showMessageBox,confirm:showConfirmBox,navigate,closePopup,reloadGrid:async id=>{const grid=grids(eventSchema.components||[]).find(item=>item.id===id);if(!grid)throw Error('Grid을 찾을 수 없습니다: '+id);await loadGrid(grid);}},apiId=>invokeApi(apiId,undefined,eventRow||{},{refreshGrids:false,apiSchema:eventSchema,allowBusy:eventName==='onUnloadPage'}));
+    }catch(error){setMessage(`View 스크립트 오류: ${error.message}`);}
+    return result;
+  }
+  async function closePopup(){if(isPopup&&onClosePopup){await onClosePopup();return;}if(!popupView)return;await runPageEvent('onUnloadPage',popupView.view,popupView.row||{});setPopupView(null);}
   pageLifecycle.current={load:()=>runPageEvent('onLoadPage'),unload:()=>runPageEvent('onUnloadPage')};
   useLayoutEffect(()=>registerLifecycle?.(schema.id||'main',{load:()=>pageLifecycle.current.load(),unload:()=>pageLifecycle.current.unload()}),[registerLifecycle,schema.id]);
   useLayoutEffect(()=>{if(isPopup&&!popupLoadStarted.current){popupLoadStarted.current=true;pageLifecycle.current.load();}},[isPopup,schema.id]);
@@ -77,7 +86,7 @@ function Screen({schema,navigate,contextRow,active=false,registerLifecycle,isPop
   function showConfirmBox(message,title='확인'){return new Promise(resolve=>{dialogResolver.current=resolve;setDialog({type:'confirm',title,message:String(message??'')});});}
   function finishDialog(result){const resolve=dialogResolver.current;dialogResolver.current=null;setDialog(null);resolve?.(result);}
   async function invoke(node,row){const result=await invokeApi(node?.apiId,node,row);if(result?.success&&isPopup){await showMessageBox(result.message,'처리 완료');closePopup();}return result;}
-  async function executeEvent(node,eventName,row){
+  async function executeEvent(node,eventName,row,event){
     const actions=node.events?.[eventName];
     if(eventName==='onClick'&&!actions?.length&&(node.action==='submit'||node.apiId))return invoke(node,row);
     for(let actionIndex=0;actionIndex<(actions||[]).length;actionIndex++){
@@ -85,6 +94,10 @@ function Screen({schema,navigate,contextRow,active=false,registerLifecycle,isPop
       if(action.type==='confirm'){const record=row||contextRow||{};const message=action.message.replace(/\{([a-zA-Z][a-zA-Z0-9_]*)\}/g,(_,key)=>cellText(record[key]));if(!await showConfirmBox(message))return;}
       else if(action.type==='callApi'){const hasExplicitReload=actions.slice(actionIndex+1).some(next=>next.type==='reloadGrid');const result=await invokeApi(action.apiId,node,row,{refreshGrids:!hasExplicitReload});if(!result.success)return;await showMessageBox(result.message,'처리 완료');if(isPopup)closePopup();}
       else if(action.type==='submitForm'){const result=await invoke(node,row);if(!result?.success)return;}
+      else if(action.type==='customCode'){
+        try{const run=new Function('event','row','context','api',`"use strict"; return (async()=>{${action.code}\n})();`);await run(event,row||contextRow||{}, {showMessage:showMessageBox,confirm:showConfirmBox,navigate,closePopup,reloadGrid:async id=>{const grid=grids(schema.components||[]).find(item=>item.id===id);if(!grid)throw Error('Grid을 찾을 수 없습니다: '+id);await loadGrid(grid);}},(apiId)=>invokeApi(apiId,node,row));}
+        catch(error){setMessage(`사용자 코드 오류: ${error.message}`);return;}
+      }
       else if(action.type==='reloadGrid'){
         const grid=grids(schema.components||[]).find(item=>item.id===action.componentId);
         if(!grid){setMessage('success: false · message: 다시 불러올 Grid를 찾을 수 없습니다.');return;}
@@ -122,7 +135,7 @@ function Screen({schema,navigate,contextRow,active=false,registerLifecycle,isPop
     }
     if(node.type==='text')return <p key={node.id} className={classNames(width,'whitespace-pre-wrap break-words',node.className)} style={node.style}>{node.useCellValue?cellText(cellValue):node.text}</p>;
     if(node.type==='button'){
-      const button=<button data-component={schema.components?node.id:undefined} type="button" onClick={event=>{if(node.events?.onClick?.length){event.stopPropagation();executeEvent(node,'onClick',rowContext);}else if(node.action==='submit'||node.apiId){event.stopPropagation();invoke(node,rowContext);}}} onDoubleClick={event=>{if(node.events?.onDblClick?.length){event.stopPropagation();executeEvent(node,'onDblClick',rowContext);}}} disabled={busy&&(!!node.events||node.action==='submit'||!!node.apiId)} className={classNames('vw-primary-button',node.className)} style={{...(node.buttonWidth!==undefined?{width:node.buttonWidth,minWidth:0,paddingInline:Math.min(28,node.buttonWidth/4),boxSizing:'border-box'}:{}),transform:`translate(${node.offsetX||0}px, ${node.offsetY||0}px)`,...node.style}}>{busy?'처리 중…':node.text}</button>;
+      const button=<button data-component={schema.components?node.id:undefined} type="button" onClick={event=>{if(node.events?.onClick?.length){event.stopPropagation();executeEvent(node,'onClick',rowContext,event);}else if(node.action==='submit'||node.apiId){event.stopPropagation();invoke(node,rowContext);}}} onDoubleClick={event=>{if(node.events?.onDblClick?.length){event.stopPropagation();executeEvent(node,'onDblClick',rowContext,event);}}} disabled={busy&&(!!node.events||node.action==='submit'||!!node.apiId)} className={classNames('vw-primary-button',node.className)} style={{...(node.buttonWidth!==undefined?{width:node.buttonWidth,minWidth:0,paddingInline:Math.min(28,node.buttonWidth/4),boxSizing:'border-box'}:{}),transform:`translate(${node.offsetX||0}px, ${node.offsetY||0}px)`,...node.style}}>{busy?'처리 중…':node.text}</button>;
       return <div key={node.id} className={'vw-button-row'+(node.span===2?' vw-full-row':'')} data-align={node.align||'left'} style={{...(node.buttonAreaWidth!==undefined?{width:node.buttonAreaWidth,flexBasis:'auto',flexShrink:0}:{}),minHeight:node.buttonAreaHeight||44,alignItems:{top:'flex-start',center:'center',bottom:'flex-end'}[node.verticalAlign||'top']}}>{button}</div>;
     }
     if(node.type==='grid'){

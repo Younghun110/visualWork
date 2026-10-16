@@ -73,14 +73,14 @@ function renderNodes(nodes,target,parent=null){
   nodes.forEach((node,index)=>{
     if(parentNode?.type==='grid'&&node.type==='cell'&&covered.has(index))return;
     if(parent&&node.type!=='cell')target.append(zone(parent,index));
-    const el=document.createElement('div');el.className='field component'+(node.id===selected?' selected':'')+(node.span===2?' wide':'');el.draggable=node.type!=='cell';el.tabIndex=0;el.dataset.id=node.id;
+    const el=document.createElement('div');el.className='field component'+(node.id===selected?' selected':'')+(node.span===2?' wide':'');el.draggable=node.type!=='cell';el.tabIndex=0;el.dataset.id=node.id;el.dataset.type=node.type;
     if(parentNode?.type==='grid'&&node.type==='cell'){el.style.gridColumn=`span ${node.colSpan||1}`;el.style.gridRow=`span ${node.rowSpan||1}`;}
     if(['container','grid'].includes(node.type)&&node.height)el.style.height=node.height+'px';
     if(parent&&node.type==='cell'){const grid=L.find(model.components,parent);if(grid?.rowHeight)el.style.minHeight=grid.rowHeight+'px';}
     applyCustomStyle(el,node);
     if(!parent){el.classList.add('free-component');el.style.left=node.position.x+'px';el.style.top=node.position.y+'px';el.style.width=node.position.width+'px';}
     el.setAttribute('aria-label',node.type+' 선택');
-    const choose=e=>{e.stopPropagation();if(selected!==node.id){selected=node.id;render();}};
+    const choose=e=>{e.stopPropagation();if(selected!==node.id){selected=node.id;render();}document.querySelector?.(`[data-id="${node.id}"]`)?.focus?.({preventScroll:true});};
     el.onclick=choose;el.onkeydown=e=>{if(e.target===el&&(e.key==='Enter'||e.key===' ')){e.preventDefault();choose(e);}};
     if(node.type==='button')el.ondblclick=e=>{e.stopPropagation();selected=node.id;render();openEventEditor(node.id);};
     el.ondragstart=e=>{e.stopPropagation();const rect=el.getBoundingClientRect();dragOffset={x:e.clientX-rect.left,y:e.clientY-rect.top};e.dataTransfer.setData('text/plain','move:'+node.id);e.dataTransfer.effectAllowed='move';};
@@ -131,6 +131,7 @@ function render(){
   for(const key of ['title','table'])$(key).value=model[key];
   $('api-summary').textContent='등록된 API '+(model.apis?.length||0)+'개';
   renderPageEventSelect('page-onload-api','onLoadPage');renderPageEventSelect('page-onunload-api','onUnloadPage');
+  $('page-onload-code').value=model.pageScripts?.onLoadPage||'';$('page-onunload-code').value=model.pageScripts?.onUnloadPage||'';
   L.ensurePositions(model.components);$('fields').replaceChildren();renderNodes(model.components,$('fields'));
   requestAnimationFrame(()=>{
     const elements=Array.from($('fields').children);
@@ -168,6 +169,7 @@ function actionTemplate(type){
   if(type==='popupView')return {type,viewId:'',primaryKeyField:'id',primaryKeyParam:'id'};
   if(type==='reloadGrid')return {type,componentId:''};
   if(type==='submitForm')return {type};
+  if(type==='customCode')return {type,code:'// event: 클릭 이벤트\n// row: Grid 행 데이터 (Grid 안의 버튼에서 사용)\nconsole.log("버튼을 클릭했습니다.");'};
   if(type==='closePopup')return {type};
   if(type==='confirm')return {type,message:'정말 진행하시겠습니까?'};
   return {type:'showMessage',message:'완료'};
@@ -193,7 +195,7 @@ function renderEventEditor(){
     actions.forEach((action,index)=>{
       const row=document.createElement('div');row.className='event-action';
       const typeSelect=document.createElement('select');typeSelect.setAttribute('aria-label','액션 종류');
-      addOption(typeSelect,'submitForm','폼 제출 / 버튼 연결 API');addOption(typeSelect,'callApi','API 호출');addOption(typeSelect,'reloadGrid','Grid 데이터 다시 불러오기');addOption(typeSelect,'showMessage','메시지 표시');addOption(typeSelect,'confirm','확인 후 계속');addOption(typeSelect,'navigate','화면 이동');addOption(typeSelect,'popupView','팝업으로 View 표시');addOption(typeSelect,'closePopup','팝업 닫기');typeSelect.value=action.type;
+      addOption(typeSelect,'submitForm','폼 제출 / 버튼 연결 API');addOption(typeSelect,'callApi','API 호출');addOption(typeSelect,'reloadGrid','Grid 데이터 다시 불러오기');addOption(typeSelect,'showMessage','메시지 표시');addOption(typeSelect,'confirm','확인 후 계속');addOption(typeSelect,'navigate','화면 이동');addOption(typeSelect,'popupView','팝업으로 View 표시');addOption(typeSelect,'closePopup','팝업 닫기');addOption(typeSelect,'customCode','사용자 JavaScript 실행');typeSelect.value=action.type;
       typeSelect.onchange=()=>{actions[index]=actionTemplate(typeSelect.value);renderEventEditor();};
       const config=document.createElement('div');config.className='event-action-config';
       if(action.type==='callApi'){
@@ -208,6 +210,9 @@ function renderEventEditor(){
         config.append(labeledControl('다시 불러올 Grid',gridSelect));
       }else if(action.type==='submitForm'){
         const hint=document.createElement('p');hint.textContent='이 버튼에 설정한 폼 제출 또는 API 연결을 실행합니다.';config.append(hint);
+      }else if(action.type==='customCode'){
+        const textarea=document.createElement('textarea');textarea.rows=10;textarea.spellcheck=false;textarea.className='event-code-editor';textarea.setAttribute('aria-label','이벤트 사용자 JavaScript');textarea.value=action.code||'';textarea.oninput=()=>{action.code=textarea.value;};
+        const hint=document.createElement('p');hint.textContent='이벤트 처리 함수 본문을 입력하세요. event에는 브라우저 이벤트, row에는 Grid 행 데이터가 전달됩니다.';config.append(textarea,hint);
       }else if(action.type==='showMessage'){
         const input=document.createElement('input');input.type='text';input.maxLength=500;input.placeholder='표시할 메시지';input.value=action.message||'';input.oninput=()=>{action.message=input.value;};
         config.append(labeledControl('메시지',input));
@@ -268,6 +273,7 @@ $('event-apply').onclick=()=>{
     if(!actions.length){$('event-dialog-error').textContent=name+' 이벤트에 액션을 하나 이상 추가하세요.';return;}
     for(const action of actions){
       if(action.type==='callApi'&&!(model.apis||[]).some(api=>api.id===action.apiId)){$('event-dialog-error').textContent='호출할 API를 선택하세요. API가 없으면 먼저 API 관리에서 등록하세요.';return;}
+      if(action.type==='customCode'&&(!action.code?.trim()||action.code.length>10000)){$('event-dialog-error').textContent='사용자 코드는 비워둘 수 없으며 10,000자 이내여야 합니다.';return;}
       if(action.type==='reloadGrid'&&L.find(model.components,action.componentId)?.type!=='grid'){$('event-dialog-error').textContent='다시 불러올 Grid를 선택하세요.';return;}
       if(action.type==='showMessage'&&!action.message?.trim()){$('event-dialog-error').textContent='표시할 메시지를 입력하세요.';return;}
       if(action.type==='confirm'&&(!action.message?.trim()||action.message.length>500)){$('event-dialog-error').textContent='확인 메시지를 1~500자로 입력하세요.';return;}
@@ -353,9 +359,12 @@ for(const key of ['text','span','columns','rows','align','useCellValue','height'
   node[key]=['useCellValue','sortable','headerFilter','pagination'].includes(key)?$(key).checked:['span','columns','height','rowHeight','pageSize','buttonAreaHeight','offsetX','offsetY'].includes(key)?Number($(key).value):$(key).value;
   if(key==='span'&&L.isField(node))model.fields.find(f=>f.name===node.field).span=node.span;
 });
-function deleteSelectedComponent(){if(!selected)return;const selectedNode=L.find(model.components,selected);if(!selectedNode)return;const cellInfo=selectedNode.type==='cell'?gridCellInfo(selected):null;const prompt=cellInfo?`Grid ${cellInfo.row+1}행 ${cellInfo.column+1}열 셀의 내용과 병합 설정을 삭제하시겠습니까?`:`선택한 ${selectedNode.type==='grid'?'Grid':selectedNode.type==='container'?'Container':'컴포넌트'}를 삭제하시겠습니까?`;if(!window.confirm(prompt))return;edit(()=>{
+function deleteSelectedComponent(){if(!selected)return;const selectedNode=L.find(model.components,selected);if(!selectedNode)return;const cellInfo=selectedNode.type==='cell'?gridCellInfo(selected):null;$('delete-dialog-message').textContent=cellInfo?`Grid ${cellInfo.row+1}행 ${cellInfo.column+1}열 셀의 내용과 병합 설정을 삭제하시겠습니까?`:`선택한 ${selectedNode.type==='grid'?'Grid':selectedNode.type==='container'?'Container':'컴포넌트'}를 삭제하시겠습니까?`;$('delete-dialog').showModal();}
+$('delete-cancel').onclick=()=> $('delete-dialog').close();
+$('delete-confirm').onclick=()=>{const deletingId=selected;$('delete-dialog').close();deleteComponent(deletingId);};
+function deleteComponent(componentId){const selectedNode=L.find(model.components,componentId);if(!selectedNode)return;const cellInfo=selectedNode.type==='cell'?gridCellInfo(componentId):null;edit(()=>{
   if(cellInfo){const remove=node=>{if(L.isField(node))model.fields=model.fields.filter(field=>field.name!==node.field);for(const child of node.children||[])remove(child);};for(const child of cellInfo.cell.children)remove(child);cellInfo.cell.children=[];delete cellInfo.cell.colSpan;delete cellInfo.cell.rowSpan;selected=null;return;}
-  const source=L.location(model.components,selected);if(!source)return;
+  const source=L.location(model.components,componentId);if(!source)return;
   const [node]=source.nodes.splice(source.index,1);
   function remove(n){if(L.isField(n))model.fields=model.fields.filter(f=>f.name!==n.field);if(n.children)n.children.forEach(remove);}remove(node);
   selected=null;
@@ -379,10 +388,11 @@ window.addEventListener('contextmenu',event=>{
 },true);
 window.addEventListener('click',event=>{if(!$('grid-cell-menu').hidden&&!event.target.closest('#grid-cell-menu'))closeGridCellMenu();});
 window.addEventListener('keydown',event=>{
-  const key=event.key.toLowerCase(),mod=event.ctrlKey||event.metaKey;
+  const key=(event.key||'').toLowerCase(),mod=event.ctrlKey||event.metaKey;
   if(key==='escape'&&!$('grid-cell-menu').hidden){closeGridCellMenu();return;}
   const typing=event.target instanceof Element&&event.target.closest('input,textarea,select,[contenteditable="true"]');
   if((key==='delete'||key==='backspace')&&selected&&!typing&&!document.querySelector('dialog[open]')){event.preventDefault();deleteSelectedComponent();return;}
+  if(mod&&key==='s'&&typing)event.target.blur?.();
   let target;
   if(mod&&key==='s')target=event.shiftKey?'export':'save';
   else if(mod&&key==='enter')target='preview';
@@ -390,7 +400,7 @@ window.addEventListener('keydown',event=>{
   if(!target)return;
   if(typing&&target!=='save'&&target!=='export')return;
   event.preventDefault();event.stopPropagation();$(target)?.click();
-});
+},true);
 window.addEventListener('message',({data})=>{
   if(data.type==='saved'){setStatus(data.message);return;}
   if(data.type==='empty'){emptyCanvas();return;}
@@ -450,6 +460,11 @@ for(const [id,eventName]of [['page-onload-api','onLoadPage'],['page-onunload-api
   model.pageEvents||={};const apiId=$(id).value;
   if(apiId)model.pageEvents[eventName]=apiId;else delete model.pageEvents[eventName];
   if(!Object.keys(model.pageEvents).length)delete model.pageEvents;
+});
+for(const [id,eventName]of [['page-onload-code','onLoadPage'],['page-onunload-code','onUnloadPage']])$(id).onchange=()=>edit(()=>{
+  model.pageScripts||={};const code=$(id).value;
+  if(code.trim())model.pageScripts[eventName]=code;else delete model.pageScripts[eventName];
+  if(!Object.keys(model.pageScripts).length)delete model.pageScripts;
 });
 function apiConsumers(id){
   const consumers=[];

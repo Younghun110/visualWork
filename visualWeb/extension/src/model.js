@@ -38,6 +38,10 @@ function validate(m,projectScreenIds,projectPopupViewIds) {
     if(!m.pageEvents||typeof m.pageEvents!=='object'||Array.isArray(m.pageEvents)||Object.keys(m.pageEvents).some(name=>!['onLoadPage','onUnloadPage'].includes(name)))throw Error('View 이벤트 설정을 확인하세요.');
     for(const apiId of Object.values(m.pageEvents))if(typeof apiId!=='string'||!apiIds.has(apiId))throw Error('View 이벤트가 참조하는 API를 찾을 수 없습니다.');
   }
+  if(m.pageScripts!==undefined){
+    if(!m.pageScripts||typeof m.pageScripts!=='object'||Array.isArray(m.pageScripts)||Object.keys(m.pageScripts).some(name=>!['onLoadPage','onUnloadPage'].includes(name)))throw Error('View 사용자 스크립트 설정을 확인하세요.');
+    for(const code of Object.values(m.pageScripts))if(typeof code!=='string'||!code.trim()||code.length>10000)throw Error('View 사용자 스크립트는 비워둘 수 없으며 10,000자 이내여야 합니다.');
+  }
   if (m.components !== undefined) {
     layout.validate(m.components, m.fields);
     const walk=nodes=>{for(const node of nodes){if(node.apiId){const api=apiIds.get(node.apiId);if(!api||(node.type==='grid'?api.method!=='GET':node.type!=='button'))throw Error('컴포넌트의 API 연결 또는 메서드를 확인하세요.');}if(node.apiPath!==undefined){if(!['grid','button'].includes(node.type))throw Error('API 경로는 Grid 또는 버튼에만 지정하세요.');validateApiPath(node.apiPath);}for(const actions of Object.values(node.events||{}))for(const action of actions){if(action.type==='callApi'&&!apiIds.has(action.apiId))throw Error('이벤트 액션이 참조하는 API를 찾을 수 없습니다.');if(action.type==='navigate'&&!screenIds.has(action.screenId))throw Error('이벤트 액션이 참조하는 화면을 찾을 수 없습니다.');if(action.type==='popupView'&&!popupViewIds.has(action.viewId)&&!(action.viewId===undefined&&screenIds.has(action.screenId)))throw Error('팝업으로 표시할 View를 찾을 수 없습니다.');if(action.type==='reloadGrid'&&layout.find(m.components||[],action.componentId)?.type!=='grid')throw Error('이벤트 액션이 참조하는 Grid를 찾을 수 없습니다.');}if(node.children)walk(node.children);}};

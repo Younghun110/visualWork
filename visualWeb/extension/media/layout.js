@@ -78,6 +78,8 @@
                 if(typeof action.apiId!=='string'||!/^api_[a-zA-Z0-9_-]{1,80}$/.test(action.apiId))throw Error('API 호출 액션의 API를 선택하세요.');
               }else if(action.type==='submitForm'){
                 continue;
+              }else if(action.type==='customCode'){
+                if(typeof action.code!=='string'||!action.code.trim()||action.code.length>10000)throw Error('사용자 코드는 비워둘 수 없으며 10,000자 이내여야 합니다.');
               }else if(action.type==='closePopup'){
                 continue;
               }else if(action.type==='showMessage'){
