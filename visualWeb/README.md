@@ -119,3 +119,8 @@ API 관리 팝업의 **요청 데이터 영역**에서 화면 전체, Container�
 버튼을 선택하면 오른쪽 **버튼 너비 (px)**에서 40~2000px로 설정할 수 있습니다. 값을 비우면 자동 너비를 사용합니다. Container와 Grid 안의 버튼에도 적용됩니다.
 
 **버튼 컨테이너 너비 (px)**는 버튼을 담는 배치 영역의 너비를 설정합니다(80~2000px). **버튼 너비 (px)**는 버튼 자체 크기이며 별도로 유지됩니다.
+
+
+cd ./visualWeb/extension
+npm install --save-dev @vscode/vsce
+npx vsce package

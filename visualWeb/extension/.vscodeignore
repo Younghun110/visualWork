@@ -1,0 +1,9 @@
+.vscode/**
+.vscode-test/**
+test/**
+coverage/**
+*.vsix
+*.log
+**/.DS_Store
+**/Thumbs.db
+**/*.map

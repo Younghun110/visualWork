@@ -18,9 +18,11 @@
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "4.3.3",
+    "@vscode/vsce": "^4.0.0",
     "tailwindcss": "4.3.3"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": ">=20.9.0",
+     "vscode": "^1.85.0"
   }
 }
