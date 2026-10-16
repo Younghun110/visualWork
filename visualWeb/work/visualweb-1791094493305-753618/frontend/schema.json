@@ -1,7 +1,6 @@
 {
   "version": 2,
   "title": "새 화면",
-  "table": "records",
   "submitLabel": "저장",
   "fields": [
     {

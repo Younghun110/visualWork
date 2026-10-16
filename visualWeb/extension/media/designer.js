@@ -128,7 +128,7 @@ function render(){
   $('delete-screen').disabled=activeScreen==='main'||activeIsPopup;
   $('delete-popup-view').disabled=!activeIsPopup;
   $('popup-view-properties').hidden=!activeIsPopup;$('popup-width').value=activeIsPopup?(model.width??''):'';$('popup-height').value=activeIsPopup?(model.height??''):'';
-  for(const key of ['title','table'])$(key).value=model[key];
+  $('title').value=model.title;
   $('api-summary').textContent='등록된 API '+(model.apis?.length||0)+'개';
   renderPageEventSelect('page-onload-api','onLoadPage');renderPageEventSelect('page-onunload-api','onUnloadPage');
   $('page-onload-code').value=model.pageScripts?.onLoadPage||'';$('page-onunload-code').value=model.pageScripts?.onUnloadPage||'';
@@ -311,14 +311,14 @@ for(const button of document.querySelectorAll('[data-type]')){
 }
 $('add-screen').onclick=()=>edit(()=>{
   project.screens??=[];if(project.screens.length>=29)throw Error('화면은 최대 30개까지 추가할 수 있습니다.');
-  let n=1;while(project.screens.some(screen=>screen.table==='screen_'+n))n++;
-  const screen={id:'screen_'+crypto.randomUUID(),version:2,title:'새 화면 '+n,table:'screen_'+n,submitLabel:'저장',fields:[],components:[]};
+  let n=1;while(project.screens.some(screen=>screen.title==='새 화면 '+n))n++;
+  const screen={id:'screen_'+crypto.randomUUID(),version:2,title:'새 화면 '+n,submitLabel:'저장',fields:[],components:[]};
   project.screens.push(screen);activeScreen=screen.id;model=screen;selected=null;
 });
 $('delete-screen').onclick=()=>{if(activeScreen!=='main')edit(()=>{project.screens=project.screens.filter(screen=>screen.id!==activeScreen);activeScreen='main';model=project;selected=null;});};
 $('add-popup-view').onclick=()=>edit(()=>{
   project.popupViews??=[];if(project.popupViews.length>=30)throw Error('팝업 View는 최대 30개까지 만들 수 있습니다.');
-  const view={id:'popup_'+crypto.randomUUID(),version:2,title:'새 팝업 View',table:project.table,submitLabel:'닫기',fields:[],components:[],apis:[]};
+  const view={id:'popup_'+crypto.randomUUID(),version:2,title:'새 팝업 View',submitLabel:'닫기',fields:[],components:[],apis:[]};
   project.popupViews.push(view);activeScreen=view.id;model=view;selected=null;
 });
 function updatePopupDimension(key,inputId,min,max){const raw=$(inputId).value;if(raw==='')return edit(()=>delete model[key]);const value=Number(raw);if(!Number.isInteger(value)||value<min||value>max){setStatus(`${key==='width'?'팝업 너비는 240~1600px':'팝업 높이는 180~1200px'} 사이로 입력하세요.`,true);render();return;}edit(()=>{model[key]=value;});}
@@ -333,7 +333,7 @@ $('delete-popup-view').onclick=()=>{if((project.popupViews||[]).some(view=>view.
 $('show-grid').onchange=()=>{$('canvas').classList.toggle('show-grid',$('show-grid').checked);};
 $('canvas').ondragover=e=>e.preventDefault();$('canvas').ondrop=e=>{if(!model){e.preventDefault();setStatus('먼저 폴더를 불러와주세요.');return;}drop(e,null,model.components.length);};
 for(const [id,key]of [['pos-x','x'],['pos-y','y'],['pos-width','width']])$(id).onchange=()=>edit(()=>L.find(model.components,selected).position[key]=Number($(id).value));
-for(const key of ['title','table'])$(key).onchange=()=>edit(()=>{
+for(const key of ['title'])$(key).onchange=()=>edit(()=>{
   model[key]=$(key).value;
 });
 for(const id of ['grid-api-id','button-api-id'])$(id).onchange=()=>edit(()=>{const node=L.find(model.components,selected);node.apiId=$(id).value;});

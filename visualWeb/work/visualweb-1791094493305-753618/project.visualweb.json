@@ -1,7 +1,6 @@
 {
   "version": 2,
   "title": "샘플",
-  "table": "records",
   "submitLabel": "저장",
   "fields": [
     {
@@ -239,7 +238,6 @@
       "id": "screen_853aae81-6478-4f17-b6ba-fc09ec02fdf4",
       "version": 2,
       "title": "새 화면이야",
-      "table": "screen_2",
       "submitLabel": "저장",
       "fields": [
         {
@@ -510,7 +508,6 @@
       "id": "popup_56b2dea5-6edd-4152-9f41-d00c8c5113b2",
       "version": 2,
       "title": "업데이트-members",
-      "table": "records",
       "submitLabel": "닫기",
       "fields": [
         {
@@ -588,7 +585,6 @@
       "id": "popup_60ec5752-91bf-4cdc-b410-822eb8d15959",
       "version": 2,
       "title": "업데이트-posts",
-      "table": "records",
       "submitLabel": "닫기",
       "fields": [
         {

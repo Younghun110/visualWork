@@ -2,7 +2,7 @@ const {test}=require('node:test');const assert=require('node:assert/strict');con
 const {createForm,validate}=require('../src/model');const {generate}=require('../src/generator');
 const api=import('data:text/javascript;base64,'+Buffer.from(fs.readFileSync(require.resolve('../templates/workspace-data.js'),'utf8')).toString('base64'));
 test('screens persist through generation and use stable separate tabs',async()=>{
- const model=createForm();model.screens=[{id:'screen_reservation',version:2,title:'예약 관리',table:'reservations',submitLabel:'저장',fields:[],components:[]}];validate(model);
+ const model=createForm();model.screens=[{id:'screen_reservation',version:2,title:'예약 관리',submitLabel:'저장',fields:[],components:[]}];validate(model);
  const {projectScreens,openScreen,closeScreen}=await api;
  assert.deepEqual(projectScreens(model).map(screen=>screen.title),['회원 등록','예약 관리']);
  assert.deepEqual(openScreen(['main','screen_reservation'],'screen_reservation'),['main','screen_reservation']);

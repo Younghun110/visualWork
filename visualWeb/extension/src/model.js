@@ -12,7 +12,6 @@ function validateApi(api) {
 }
 function validate(m,projectScreenIds,projectPopupViewIds) {
   if (!m || m.version !== 2 || typeof m.title !== 'string' || !m.title.trim() || m.title.length > 100) throw Error('유효한 v2 폼과 제목이 필요합니다.');
-  if (typeof m.table !== 'string' || !identifier.test(m.table)) throw Error('테이블 이름은 소문자 영문으로 시작하는 영문/숫자/_ 조합입니다.');
   if (!Array.isArray(m.fields) || m.fields.length > 30) throw Error('필드는 최대 30개까지 추가할 수 있습니다.');
   const names = new Set(['id', 'created_at']);
   for (const f of m.fields) {
@@ -65,14 +64,10 @@ function validate(m,projectScreenIds,projectPopupViewIds) {
   return m;
 }
 function createForm() {
-  return {version:2,title:'회원 등록',table:'members',submitLabel:'회원 저장',fields:[
+  return {version:2,title:'회원 등록',submitLabel:'회원 저장',fields:[
     {name:'name',label:'이름',type:'text',required:true,unique:false,span:1},
     {name:'email',label:'이메일',type:'email',required:true,unique:true,span:1}
   ]};
 }
-function createBlankForm(){return {version:2,title:'새 화면',table:'records',submitLabel:'저장',fields:[],components:[],apis:[]};}
-function migration(m) {
-  validate(m);
-  return `CREATE TABLE IF NOT EXISTS \`${m.table}\` (\n  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,\n${m.fields.map(f=>`  \`${f.name}\` ${f.type==='number'?'DOUBLE':'VARCHAR(255)'} ${f.required?'NOT NULL':'NULL'}${f.unique?' UNIQUE':''}`).join(',\n')}${m.fields.length?',':''}\n  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP\n) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\n`;
-}
-module.exports={validate,createForm,createBlankForm,migration};
+function createBlankForm(){return {version:2,title:'새 화면',submitLabel:'저장',fields:[],components:[],apis:[]};}
+module.exports={validate,createForm,createBlankForm};

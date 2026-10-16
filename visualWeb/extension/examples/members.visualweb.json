@@ -1,7 +1,6 @@
 {
   "version": 2,
   "title": "회원 등록",
-  "table": "members",
   "submitLabel": "회원 저장",
   "fields": [
     {
